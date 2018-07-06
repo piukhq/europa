@@ -12,11 +12,5 @@ djangorestframework = "*"
 "psycopg2-binary" = "*"
 pyjwt = "*"
 
-
-[requires]
-
-python_version = "3.5"
-
-
 [dev-packages]
 
