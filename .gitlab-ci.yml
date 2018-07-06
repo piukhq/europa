@@ -1,0 +1,44 @@
+stages:
+  - tests
+  - build
+
+
+complexity:
+  stage: tests
+  script:
+    - xenon --max-average A --max-modules B --max-absolute B .
+  tags:
+    - docker
+
+tests:
+  stage: tests
+  script:
+    - pipenv install --dev
+    - pipenv run coverage run --source='.' manage.py test -v 2
+    - pipenv run coverage report
+
+  services:
+  tags:
+    - docker
+
+style:
+  stage: tests
+  script:
+    - flake8 *
+  tags:
+    - docker
+
+build-latest:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+  script:
+    - docker build --pull -t "$CI_REGISTRY/europa:latest" .
+    - docker push "$CI_REGISTRY/europa:latest"
+  only:
+    - develop
+  tags:
+    - docker

@@ -1,0 +1,15 @@
+[run]
+omit = *migrations*
+       *test*
+       *templates*
+       *fixtures*
+       *static*
+       *environment*
+       manage.py
+       europa/wsgi.py
+       **/apps.py
+
+branch = True
+
+[report]
+fail_under = 85

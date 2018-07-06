@@ -1,0 +1,15 @@
+*.pyc
+.idea/
+aes
+*.ipynb
+.coverage
+media
+.env
+__pychache__
+.cache
+venv/
+database/*
+.DS_Store
+app/.DS_Store
+.vscode/
+db.sqlite3
