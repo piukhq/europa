@@ -13,6 +13,7 @@ tests:
   stage: tests
   script:
     - pipenv install --dev
+    - export TESTING=true
     - pipenv run pytest --cov-report term-missing --cov=.
 
   services:
@@ -20,7 +21,7 @@ tests:
 style:
   stage: tests
   script:
-    - flake8 *
+    - flake8
 
 build-develop:
   stage: build

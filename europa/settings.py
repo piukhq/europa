@@ -105,7 +105,7 @@ test = {
 
 
 DATABASES = {
-    'default': test if 'test' in sys.argv else default
+    'default': test if env_var('TESTING') else default
 }
 
 
