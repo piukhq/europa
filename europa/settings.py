@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 import sys
+import europa
 from environment import env_var, read_env
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -35,6 +36,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'raven.contrib.django.raven_compat',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -144,8 +146,21 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-STATIC_URL = '/static/'
+NO_AZURE_STORAGE = env_var('NO_AZURE_STORAGE')
 
-MIDAS_URL = env_var('MIDAS_URL', 'https://midas.api.bink-dev.xyz')
+if not NO_AZURE_STORAGE:
+    DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
+    AZURE_ACCOUNT_NAME = env_var('AZURE_ACCOUNT_NAME')
+    AZURE_ACCOUNT_KEY = env_var('AZURE_ACCOUNT_KEY')
+    AZURE_CONTAINER = env_var('AZURE_CONTAINER')
+    AZURE_CUSTOM_DOMAIN = env_var('AZURE_CUSTOM_DOMAIN')
 
-SERVICE_API_KEY = 'F616CE5C88744DD52DB628FAD8B3D'
+STATIC_URL = env_var('STATIC_URL', '/static/')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+SENTRY_DSN = env_var('SENTRY_DSN', None)
+if SENTRY_DSN:
+    RAVEN_CONFIG = {
+        'dsn': SENTRY_DSN,
+        'release': europa.__version__,
+    }

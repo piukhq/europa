@@ -1,8 +1,11 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from django.db import models
 from django.forms import Textarea
 
-from config_service.models import Configuration, SecurityCredential
+from config_service.models import Configuration, SecurityCredential, CustomUser
+
+admin.site.register(CustomUser, UserAdmin)
 
 
 class SecurityCredentialInline(admin.TabularInline):

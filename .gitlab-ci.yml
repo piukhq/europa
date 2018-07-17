@@ -1,34 +1,28 @@
 stages:
   - tests
   - build
+  - deploy
 
 
 complexity:
   stage: tests
   script:
     - xenon --max-average A --max-modules B --max-absolute B .
-  tags:
-    - docker
 
 tests:
   stage: tests
   script:
     - pipenv install --dev
-    - pipenv run coverage run --source='.' manage.py test -v 2
-    - pipenv run coverage report
+    - pipenv run pytest --cov-report term-missing --cov=.
 
   services:
-  tags:
-    - docker
 
 style:
   stage: tests
   script:
     - flake8 *
-  tags:
-    - docker
 
-build-latest:
+build-develop:
   stage: build
   image: docker:latest
   services:
@@ -40,5 +34,15 @@ build-latest:
     - docker push "$CI_REGISTRY/europa:latest"
   only:
     - develop
-  tags:
-    - docker
+
+deploy-dev:
+  stage: deploy
+  image: binkops.azurecr.io/kubedeployer:latest
+  environment: dev
+  script:
+    - bash collectstatic.sh
+    - ENVIRONMENT=dev deploystatic
+    - kubectl config use-context dev
+    - kubectl delete po $(kubectl get po --no-headers=true -l run=europa -o custom-columns=:metadata.name)
+  only:
+    - develop

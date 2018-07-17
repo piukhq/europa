@@ -1,13 +1,12 @@
 from django.http import JsonResponse
 from rest_framework.views import APIView
-
-from config_service.authentication import ServiceAuthentication
+from rest_framework.response import Response
 from config_service.models import Configuration
 from config_service.serializers import ConfigurationSerializer
 
 
 class ConfigurationDetail(APIView):
-    authentication_classes = (ServiceAuthentication, )
+    # authentication_classes = (ServiceAuthentication, )
     queryset = Configuration.objects.all()
     serializer_class = ConfigurationSerializer
 
@@ -28,3 +27,11 @@ class ConfigurationDetail(APIView):
                                           in config_queryset[0].securitycredential_set.all()]
 
         return JsonResponse(config, status=200)
+
+
+class HealthCheck(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        return Response()
