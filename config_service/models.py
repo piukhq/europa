@@ -28,9 +28,11 @@ class Configuration(models.Model):
     )
 
     RSA_SECURITY = 0
+    OPEN_AUTH_SECURITY = 1
 
     SECURITY_TYPE_CHOICES = (
         (RSA_SECURITY, "RSA"),
+        (OPEN_AUTH_SECURITY, "Open Auth (No Authentication)")
     )
 
     DEBUG_LOG_LEVEL = 0
