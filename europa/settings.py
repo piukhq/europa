@@ -30,6 +30,8 @@ SECRET_KEY = '6d#dcrvly@mj0u5nyis&4h0+fzysma86a&fye%#$_co5bd*d$*'
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    '0.0.0.0',
+    '127.0.0.1',
     'europa',
     '.bink-dev.com',
     '.bink-staging.com',
@@ -49,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'config_service',
     'rest_framework',
+    'nested_admin',
 ]
 
 REST_FRAMEWORK = {
