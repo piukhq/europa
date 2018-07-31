@@ -27,14 +27,6 @@ class Configuration(models.Model):
         (ASYNC_INTEGRATION, "Async"),
     )
 
-    RSA_SECURITY = 0
-    OPEN_AUTH_SECURITY = 1
-
-    SECURITY_TYPE_CHOICES = (
-        (RSA_SECURITY, "RSA"),
-        (OPEN_AUTH_SECURITY, "Open Auth (No Authentication)")
-    )
-
     DEBUG_LOG_LEVEL = 0
     INFO_LOG_LEVEL = 1
     WARNING_LOG_LEVEL = 2
@@ -54,7 +46,6 @@ class Configuration(models.Model):
     handler_type = models.IntegerField(choices=HANDLER_TYPE_CHOICES)
     integration_service = models.IntegerField(choices=INTEGRATION_CHOICES)
     callback_url = models.CharField(max_length=256, blank=True, null=True)
-    security_service = models.IntegerField(choices=SECURITY_TYPE_CHOICES)
     retry_limit = models.IntegerField(default=0)
     log_level = models.IntegerField(choices=LOG_LEVEL_CHOICES, default=DEBUG_LOG_LEVEL)
     country = models.CharField(max_length=128, default='GB')
@@ -67,22 +58,57 @@ class SecurityCredential(models.Model):
     BINK_PRIVATE_KEY = "bink_private_key"
     BINK_PUBLIC_KEY = "bink_public_key"
     MERCHANT_PUBLIC_KEY = "merchant_public_key"
+    COMPOUND_KEY = "compound_key"
 
     SECURITY_CRED_TYPE_CHOICES = (
         (BINK_PRIVATE_KEY, "Bink private key"),
         (BINK_PUBLIC_KEY, "Bink public key"),
         (MERCHANT_PUBLIC_KEY, "Merchant public key"),
+        (COMPOUND_KEY, "Compound key")
     )
 
     type = models.CharField(max_length=32, choices=SECURITY_CRED_TYPE_CHOICES)
     storage_key = models.TextField(blank=True)
-    configuration = models.ForeignKey(Configuration, on_delete=models.CASCADE)
+    security_service = models.ForeignKey('SecurityService', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.type
+        return '{}'.format(self.type)
 
     def save(self, *args, **kwargs):
-        hashed_storage_key = hashlib.sha256("{}.{}".format(self.type, self.configuration.merchant_id).encode())
+        hashed_storage_key = hashlib.sha256(
+            "{}.{}.{}".format(
+                self.type, self.security_service.type, self.security_service.configuration.merchant_id
+            ).encode()
+        )
         self.storage_key = hashed_storage_key.hexdigest()
-
         super().save(*args, **kwargs)
+
+
+class SecurityService(models.Model):
+    RSA_SECURITY = 0
+    OPEN_AUTH_SECURITY = 1
+    OAUTH_SECURITY = 2
+
+    SECURITY_TYPE_CHOICES = (
+        (RSA_SECURITY, "RSA"),
+        (OPEN_AUTH_SECURITY, "Open Auth (No Authentication)"),
+        (OAUTH_SECURITY, "OAuth"),
+    )
+
+    INBOUND_REQUEST = "INBOUND"
+    OUTBOUND_REQUEST = "OUTBOUND"
+
+    REQUEST_TYPE_CHOICES = (
+        (INBOUND_REQUEST, "Inbound"),
+        (OUTBOUND_REQUEST, "Outbound")
+    )
+
+    request_type = models.CharField(max_length=16, choices=REQUEST_TYPE_CHOICES)
+    type = models.IntegerField(choices=SECURITY_TYPE_CHOICES)
+    configuration = models.ForeignKey(Configuration, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('request_type', 'configuration')
+
+    def __str__(self):
+        return '{} {}'.format(self.type, self.request_type)
