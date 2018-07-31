@@ -25,8 +25,8 @@ class TestConfigService(TestCase):
                                                               configuration=self.config)
 
         self.outbound_service = SecurityService.objects.create(request_type=SecurityService.OUTBOUND_REQUEST,
-                                                  type=SecurityService.RSA_SECURITY,
-                                                  configuration=self.config)
+                                                               type=SecurityService.RSA_SECURITY,
+                                                               configuration=self.config)
 
         self.inbound_security_creds = {'type': 'public_key', 'security_service': self.inbound_service}
         self.outbound_security_creds = {'type': 'public_key', 'security_service': self.outbound_service}
