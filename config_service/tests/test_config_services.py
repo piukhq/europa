@@ -64,12 +64,18 @@ class TestConfigService(TestCase):
             'retry_limit': 2,
             'log_level': 0,
             'country': 'GB',
-            'security_credentials': {'inbound': [{'service': self.inbound_service.type,
-                                                  'credential_type': self.inbound_security_creds['type'],
-                                                  'storage_key': inbound_storage_key}],
-                                     'outbound': [{'service': self.outbound_service.type,
-                                                   'credential_type': self.outbound_security_creds['type'],
-                                                   'storage_key': outbound_storage_key}]}
+            'security_credentials': {
+                'inbound': {
+                    'service': self.inbound_service.type,
+                    'credentials': [
+                        {'credential_type': self.inbound_security_creds['type'], 'storage_key': inbound_storage_key}]
+                },
+                'outbound': {
+                    'service': self.outbound_service.type,
+                    'credentials': [
+                        {'credential_type': self.outbound_security_creds['type'], 'storage_key': outbound_storage_key}]
+                }
+            }
         }
 
         resp = self.client.get(reverse('configuration'),
