@@ -4,6 +4,11 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 
+def read_file_contents(value):
+    contents = value.read()
+    return contents
+
+
 class CustomUser(AbstractUser):
     first_login = models.BooleanField(default=True)
 
@@ -70,6 +75,7 @@ class SecurityCredential(models.Model):
     )
 
     type = models.CharField(max_length=32, choices=SECURITY_CRED_TYPE_CHOICES)
+    key_to_store = models.FileField(validators=[read_file_contents], blank=True)
     storage_key = models.TextField(blank=True)
     security_service = models.ForeignKey('SecurityService', on_delete=models.CASCADE)
 
