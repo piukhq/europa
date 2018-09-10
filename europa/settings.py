@@ -92,6 +92,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'europa.wsgi.application'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_URL = '/static/'
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
@@ -162,8 +164,6 @@ if not NO_AZURE_STORAGE:
     AZURE_CONTAINER = env_var('AZURE_CONTAINER')
     AZURE_CUSTOM_DOMAIN = env_var('AZURE_CUSTOM_DOMAIN')
 
-STATIC_URL = env_var('STATIC_URL', '/static/')
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 SENTRY_DSN = env_var('SENTRY_DSN', None)
 if SENTRY_DSN:
