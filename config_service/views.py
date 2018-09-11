@@ -23,8 +23,26 @@ class ConfigurationDetail(APIView):
                 .format(merchant_id)
             }, status=400)
 
-        config['security_credentials'] = [{'type': item.type, 'storage_key': item.storage_key} for item
-                                          in config_queryset[0].securitycredential_set.all()]
+        inbound_security_service = config_queryset[0].securityservice_set.get(request_type="INBOUND")
+        outbound_security_service = config_queryset[0].securityservice_set.get(request_type="OUTBOUND")
+
+        inbound_credentials = {
+            'service': inbound_security_service.type,
+            'credentials': [{
+                'credential_type': item.type,
+                'storage_key': item.storage_key}
+                for item in inbound_security_service.securitycredential_set.all()]
+        }
+
+        outbound_credentials = {
+            'service': outbound_security_service.type,
+            'credentials': [{
+                'credential_type': item.type,
+                'storage_key': item.storage_key}
+                for item in outbound_security_service.securitycredential_set.all()]
+        }
+
+        config['security_credentials'] = {'inbound': inbound_credentials, 'outbound': outbound_credentials}
 
         return JsonResponse(config, status=200)
 

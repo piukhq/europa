@@ -4,7 +4,7 @@ import json
 from django.test import TestCase
 from django.urls import reverse
 
-from config_service.models import Configuration, SecurityCredential
+from config_service.models import Configuration, SecurityCredential, SecurityService
 
 
 class TestConfigService(TestCase):
@@ -13,19 +13,47 @@ class TestConfigService(TestCase):
             'log_level': Configuration.DEBUG_LOG_LEVEL,
             'merchant_id': 'fake-merchant',
             'merchant_url': 'www.fake-url.fake',
-            'security_service': Configuration.RSA_SECURITY,
             'handler_type': Configuration.UPDATE_HANDLER,
             'integration_service': Configuration.SYNC_INTEGRATION,
             'retry_limit': 2,
         }
-        self.security_creds = {'type': 'public_key'}
+
         self.config = Configuration.objects.create(**self.data)
-        SecurityCredential.objects.create(**self.security_creds, configuration=self.config)
+
+        self.inbound_service = SecurityService.objects.create(request_type=SecurityService.INBOUND_REQUEST,
+                                                              type=SecurityService.RSA_SECURITY,
+                                                              configuration=self.config)
+
+        self.outbound_service = SecurityService.objects.create(request_type=SecurityService.OUTBOUND_REQUEST,
+                                                               type=SecurityService.RSA_SECURITY,
+                                                               configuration=self.config)
+
+        self.inbound_security_creds = {'type': 'public_key', 'security_service': self.inbound_service}
+        self.outbound_security_creds = {'type': 'public_key', 'security_service': self.outbound_service}
+
+        SecurityCredential.objects.create(**self.inbound_security_creds)
+        SecurityCredential.objects.create(**self.outbound_security_creds)
 
     def test_retrieve_config_view(self):
-        hashed_storage_key = hashlib.sha256("{}.{}".format(self.security_creds['type'],
-                                                           self.data['merchant_id']).encode())
-        storage_key = hashed_storage_key.hexdigest()
+        hashed_inbound_storage_key = hashlib.sha256(
+            "{}.{}.{}".format(
+                self.inbound_security_creds['type'],
+                self.inbound_service.type,
+                self.inbound_service.configuration.merchant_id
+            ).encode()
+        )
+
+        inbound_storage_key = hashed_inbound_storage_key.hexdigest()
+
+        hashed_outbound_storage_key = hashlib.sha256(
+            "{}.{}.{}".format(
+                self.inbound_security_creds['type'],
+                self.inbound_service.type,
+                self.inbound_service.configuration.merchant_id
+            ).encode()
+        )
+
+        outbound_storage_key = hashed_outbound_storage_key.hexdigest()
         expected_resp = {
             'id': self.config.id,
             'merchant_id': 'fake-merchant',
@@ -33,11 +61,21 @@ class TestConfigService(TestCase):
             'handler_type': 0,
             'integration_service': 0,
             'callback_url': None,
-            'security_service': 0,
             'retry_limit': 2,
             'log_level': 0,
             'country': 'GB',
-            'security_credentials': [{'type': 'public_key', 'storage_key': storage_key}]
+            'security_credentials': {
+                'inbound': {
+                    'service': self.inbound_service.type,
+                    'credentials': [
+                        {'credential_type': self.inbound_security_creds['type'], 'storage_key': inbound_storage_key}]
+                },
+                'outbound': {
+                    'service': self.outbound_service.type,
+                    'credentials': [
+                        {'credential_type': self.outbound_security_creds['type'], 'storage_key': outbound_storage_key}]
+                }
+            }
         }
 
         resp = self.client.get(reverse('configuration'),

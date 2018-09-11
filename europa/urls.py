@@ -20,5 +20,6 @@ from config_service import views
 urlpatterns = [
     path('config_service/', include('config_service.urls')),
     path('config_service/admin/', admin.site.urls),
-    path('healthz', views.HealthCheck.as_view())
+    path('healthz', views.HealthCheck.as_view()),
+    path('nested_admin/', include('nested_admin.urls')),
 ]
