@@ -18,12 +18,14 @@ class SecurityCredentialInline(NestedTabularInline):
     readonly_fields = ('storage_key', 'upload_button')
 
     def upload_button(self, obj):
-        return format_html("<input class='button-primary select' type='submit' value='Upload to Vault' />")
+        return format_html(
+            "<input id='upload_to_vault' class='button-primary select' type='submit' value='Upload to Vault' />"
+        )
 
     upload_button.allow_tags = True
 
     class Media:
-        js = ('show_fields.js',)
+        js = ('show_fields.js', 'save_to_vault.js')
 
 
 class SecurityServiceInline(NestedTabularInline):

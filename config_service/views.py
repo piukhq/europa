@@ -3,7 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from config_service.models import Configuration
 from config_service.serializers import ConfigurationSerializer
-
+import hashlib
+import json
 
 class ConfigurationDetail(APIView):
     # authentication_classes = (ServiceAuthentication, )
@@ -45,6 +46,21 @@ class ConfigurationDetail(APIView):
         config['security_credentials'] = {'inbound': inbound_credentials, 'outbound': outbound_credentials}
 
         return JsonResponse(config, status=200)
+
+
+def upload_to_vault(request):
+    data = request.GET.get('form_data')
+    credentials_from_data = json.loads(data)
+    storage_key = create_hash(credentials_from_data)
+    pass
+
+
+def create_hash(data):
+    hashed_storage_key = hashlib.sha256(
+        "{}.{}.{}".format(
+            data['credential_type'], data['service_type'], data['merchant_id']).encode()
+    )
+    return hashed_storage_key.hexdigest()
 
 
 class HealthCheck(APIView):
