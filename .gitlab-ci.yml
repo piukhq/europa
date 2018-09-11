@@ -36,6 +36,19 @@ build-develop:
   only:
     - develop
 
+build-master:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+  script:
+    - docker build --pull -t "$CI_REGISTRY/europa:$CI_COMMIT_TAG" .
+    - docker push "$CI_REGISTRY/europa:$CI_COMMIT_TAG"
+  only:
+    - tags
+
 deploy-dev:
   stage: deploy
   image: binkops.azurecr.io/kubedeployer:latest
@@ -47,3 +60,16 @@ deploy-dev:
     - kubectl delete po $(kubectl get po --no-headers=true -l run=europa -o custom-columns=:metadata.name)
   only:
     - develop
+
+deploy-staging:
+  stage: deploy
+  image: binkops.azurecr.io/kubedeployer:latest
+  environment: staging
+  script:
+    - bash collectstatic.sh
+    - ENVIRONMENT=staging deploystatic
+    - kubectl config use-context staging
+    - 'kubectl patch deployment/hermes --patch "{\"spec\": {\"template\": {\"spec\": {\"initContainers\": [{\"name\": \"migrate\",\"image\": \"olympus.azurecr.io/europa:$CI_COMMIT_TAG\"}]}}}}"'
+    - kubectl set image deployment/europa europa=olympus.azurecr.io/europa:$CI_COMMIT_TAG
+  only:
+    - tags
