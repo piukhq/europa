@@ -6,9 +6,8 @@
         }
 
         var type_field = $('#id_securityservice_set-0-securitycredential_set-0-type');
-        var toggle_elements = $('.key-to-store, .field-key_to_store, .upload-button, .select')
-
-        var values = ['bink_private_key', 'bink_public_key', 'merchant_public_key', 'compound_key']
+        var toggle_elements = $('.key-to-store, .field-key_to_store, .upload-button, .select');
+        var values = ['bink_private_key', 'bink_public_key', 'merchant_public_key', 'compound_key'];
 
         function toggleElements(value) {
             if ($.inArray(value, values) !== -1) {

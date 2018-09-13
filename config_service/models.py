@@ -92,6 +92,7 @@ class SecurityCredential(models.Model):
         super().save(*args, **kwargs)
 
 
+
 class SecurityService(models.Model):
     RSA_SECURITY = 0
     OPEN_AUTH_SECURITY = 1
