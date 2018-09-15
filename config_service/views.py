@@ -53,7 +53,7 @@ class ConfigurationDetail(APIView):
 @csrf_exempt
 def upload_to_vault(request):
     data = request.GET
-    credentials_from_data = json.loads(data)
+    # credentials_from_data = json.loads(data)
     storage_key = create_hash(credentials_from_data)
     file = request.FILES['file']
     pass
