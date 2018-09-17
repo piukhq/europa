@@ -8,17 +8,10 @@
         var form_data = {};
 
         $('#upload_to_vault').click(function() {
-
             var file_input = $('#id_securityservice_set-0-securitycredential_set-0-key_to_store');
-
             var source_file = file_input.get(0).files[0];
-            // var textType = /text.*/;
 
-            // if (source_file.type.match(textType)) {
             read_file(source_file);
-            // } else {
-            // console.log("file not supported")
-            // }
         });
 
         function read_file(source_file){
