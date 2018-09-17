@@ -1,9 +1,19 @@
 from django.http import JsonResponse
+from enum import Enum
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from config_service.models import Configuration
 from config_service.serializers import ConfigurationSerializer
 import hashlib
+import europa.settings as settings
+import requests
+
+
+class HttpMethod(Enum):
+    Get = 1
+    PUT = 2
+    POST = 3
+    DELETE = 4
 
 
 class ConfigurationDetail(APIView):
@@ -48,10 +58,11 @@ class ConfigurationDetail(APIView):
         return JsonResponse(config, status=200)
 
 
-def upload_to_vault(request):
+def prepare_data(request):
     data = {value:request.GET.get(value) for value in request.GET.keys()}
     storage_key = create_hash(data)
     key_to_store = data['file']
+    upload_to_vault(key_to_store, storage_key)
     pass
 
 
@@ -61,6 +72,15 @@ def create_hash(data):
             data['credential_type'], data['service_type'], data['merchant_id']).encode()
     )
     return hashed_storage_key.hexdigest()
+
+
+def upload_to_vault(key_to_store, storage_key):
+    endpoint = settings.VAULT_URL + 'secret/data/{}'
+    pass
+
+
+def call_endpoint(endpoint, method=HttpMethod.POST, data=None):
+    response = requests.request(method.name, endpoint, data=data)
 
 
 class HealthCheck(APIView):

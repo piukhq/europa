@@ -22,5 +22,5 @@ urlpatterns = [
     path('config_service/admin/', admin.site.urls),
     path('healthz', views.HealthCheck.as_view()),
     path('nested_admin/', include('nested_admin.urls')),
-    path('form_data/', views.upload_to_vault, name='upload_to_vault')
+    path('form_data/', views.prepare_data, name='prepare_data')
 ]

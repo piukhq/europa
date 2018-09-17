@@ -13,6 +13,7 @@ pytest-django = "*"
 pytest-cov = "*"
 raven = "*"
 django-nested-admin = "*"
+requests = "*"
 
 [dev-packages]
 
