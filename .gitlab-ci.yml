@@ -83,7 +83,7 @@ deploy-prod:
     - ENVIRONMENT=prod deploystatic
     - kubectl config use-context prod
     - 'kubectl patch deployment/europa --patch "{\"spec\": {\"template\": {\"spec\": {\"initContainers\": [{\"name\": \"migrate\",\"image\": \"olympus.azurecr.io/europa:$CI_COMMIT_TAG\"}]}}}}"'
-    - kubectl set image deployment/hermes hermes=olympus.azurecr.io/europa:$CI_COMMIT_TAG
+    - kubectl set image deployment/europa europa=olympus.azurecr.io/europa:$CI_COMMIT_TAG
   when: manual
   only:
     - tags
