@@ -12,38 +12,37 @@
             var file_input = $('#id_securityservice_set-0-securitycredential_set-0-key_to_store');
 
             var source_file = file_input.get(0).files[0];
-            var textType = /text.*/;
+            // var textType = /text.*/;
 
-            if (source_file.type.match(textType)) {
-                read_file(source_file)
-            } else {
-                console.log("file not supported")
-            }
+            // if (source_file.type.match(textType)) {
+            read_file(source_file);
+            // } else {
+            // console.log("file not supported")
+            // }
         });
 
         function read_file(source_file){
             var reader = new FileReader();
+            reader.onload = function(e){
+                build_dict(reader.result)
+            };
             reader.readAsText(source_file);
-            return reader.result
         }
 
-        function build_dict(source_file){
+        function build_dict(file_contents){
             form_data['merchant_id'] = $('#id_merchant_id').val();
             form_data['service_type'] = $('#id_securityservice_set-0-type').val();
             form_data['credential_type'] = $('#id_securityservice_set-0-securitycredential_set-0-type').val();
-            form_data['file'] = reader.result;
-            return form_data
+            form_data['file'] = file_contents;
+            send_data(form_data)
 
         }
 
-        function send_data(build_dict){
+        function send_data(form_data){
             $.get({
                 url: '/form_data/',
-                contentType: false,
-                async: false,
-                data: {
-                    'form_data': form_data,
-                },
+                contentType: 'application/x-www-form-urlencoded',
+                data: form_data,
                 success: console.log('success'),
                 error: console.log('error')
             });

@@ -4,8 +4,6 @@ from rest_framework.response import Response
 from config_service.models import Configuration
 from config_service.serializers import ConfigurationSerializer
 import hashlib
-from django.views.decorators.csrf import csrf_exempt
-import json
 
 
 class ConfigurationDetail(APIView):
@@ -50,12 +48,10 @@ class ConfigurationDetail(APIView):
         return JsonResponse(config, status=200)
 
 
-@csrf_exempt
 def upload_to_vault(request):
-    data = request.GET
-    # credentials_from_data = json.loads(data)
-    storage_key = create_hash(credentials_from_data)
-    file = request.FILES['file']
+    data = {value:request.GET.get(value) for value in request.GET.keys()}
+    storage_key = create_hash(data)
+    key_to_store = data['file']
     pass
 
 
