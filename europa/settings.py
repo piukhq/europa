@@ -171,3 +171,8 @@ if SENTRY_DSN:
         'dsn': SENTRY_DSN,
         'release': europa.__version__,
     }
+
+# HashiCorp Vault
+VAULT_URL = env_var('VAULT_URL', 'http://127.0.0.1:8200')
+VAULT_TOKEN = env_var('VAULT_TOKEN', '3bd2e4ad-4515-fe8d-c952-582f3b816d22')
+
