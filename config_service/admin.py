@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.contrib.sessions.models import Session
 from django.db import models
 from django.forms import Textarea
 from django.utils.html import format_html
@@ -18,7 +19,7 @@ class SecurityCredentialInline(NestedTabularInline):
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
     readonly_fields = ('storage_key', 'upload_button')
-
+    
     def upload_button(self, obj):
         return format_html(
             "<input class='button-primary upload_to_vault' type='submit' value='Upload to Vault' />"
@@ -27,7 +28,7 @@ class SecurityCredentialInline(NestedTabularInline):
     upload_button.allow_tags = True
 
     class Media:
-        js = ('show_fields.js', 'save_to_vault.js')
+        js = ('save_to_vault.js', 'show_fields.js')
 
 
 class SecurityServiceInline(NestedTabularInline):

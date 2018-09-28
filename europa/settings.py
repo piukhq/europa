@@ -72,6 +72,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
+
 ROOT_URLCONF = 'europa.urls'
 
 TEMPLATES = [
@@ -174,5 +177,4 @@ if SENTRY_DSN:
 
 # HashiCorp Vault
 VAULT_URL = env_var('VAULT_URL', 'http://127.0.0.1:8200')
-VAULT_TOKEN = env_var('VAULT_TOKEN', '3bd2e4ad-4515-fe8d-c952-582f3b816d22')
-
+VAULT_TOKEN = env_var('VAULT_TOKEN', '4d53ac6f-0f97-29d9-26bf-06ebd736379a')

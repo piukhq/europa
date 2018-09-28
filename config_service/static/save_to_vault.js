@@ -3,10 +3,9 @@
 
         if (!$) {
             $ = django.jQuery;
-        };
+        }
 
         var form_data = {};
-
 
         $('.button-primary.upload_to_vault').click(function() {
 
@@ -43,8 +42,20 @@
             form_data['service_type'] = service_type;
             form_data['credential_type'] = credential_type;
             form_data['file'] = file_contents;
-            send_data(form_data)
+            send_data(form_data);
         }
+
+        // function check_dict(form_data) {
+        //     var count = 0;
+        //     for (var data in form_data) {
+        //         if (form_data.hasOwnProperty(data)) count++;
+        //     }
+        //     if (count >= 4){
+        //         send_data(form_data)
+        //     } else {
+        //         alert("Select Merchant ID; Security Services Request Type; Security Credentials Type and choose a file")
+        //     }
+        // }
 
         function send_data(form_data){
             $.get({
@@ -55,7 +66,7 @@
                 error: console.log('error')
             });
         }
-    });
 
+    });
 
 })(django.jQuery);
