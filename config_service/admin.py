@@ -1,11 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.contrib.sessions.models import Session
 from django.db import models
 from django.forms import Textarea
 from django.utils.html import format_html
 from nested_admin.nested import NestedModelAdmin, NestedTabularInline
-from .models import SecurityCredential
 from config_service.forms import SecurityCredentialForm
 from config_service.models import Configuration, SecurityCredential, CustomUser, SecurityService
 
@@ -44,16 +42,6 @@ class SecurityServiceInline(NestedTabularInline):
 class ConfigurationAdmin(NestedModelAdmin):
     list_display = ('merchant_id', 'handler_type')
     inlines = (SecurityServiceInline,)
-
-    # def save_formset(self, request, form, formset, change):
-    #     # instances = formset.save(commit=False)
-    #     file_string = form.data['securityservice_set-0-securitycredential_set-0-key_to_store']
-    #     file = SecurityCredential(key_to_store=file_string)
-    #     pass
-    #
-    # def save_model(self, request, obj, form, change):
-    #     instances = form.save(commit=False)
-    #     pass
 
 
 @admin.register(SecurityCredential)

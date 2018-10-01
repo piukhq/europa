@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from config_service.models import Configuration
 from config_service.serializers import ConfigurationSerializer
+from .forms import SecurityCredentialForm
 import ast
 import europa.settings as settings
 import hashlib
@@ -56,11 +57,12 @@ class ConfigurationDetail(APIView):
 def prepare_data(request):
     data = {value: request.GET.get(value) for value in request.GET.keys()}
     storage_key = create_hash(data['credential_type'], data['service_type'], data['merchant_id'])
-    store_key_in_session(storage_key)
+    request.session['storage_key'] = storage_key
     key_to_store = data['file']
+
     # if type_of_storage_key returns True, the value is a compound key. If False its an RSA key
-    # type_of_storage_key = get_file_type(key_to_store)
-    # upload_to_vault(key_to_store, storage_key, type_of_storage_key)
+    type_of_storage_key = get_file_type(key_to_store)
+    upload_to_vault(key_to_store, storage_key, type_of_storage_key)
     return JsonResponse({}, status=200)
 
 
@@ -79,15 +81,6 @@ def get_file_type(key_to_store):
     except SyntaxError:
         f = False
         return f
-
-
-def store_key_in_session(key):
-    s = SessionStore()
-    s['storage_key'] = key
-    s.create()
-    session_key = s.session_key
-    s = SessionStore(session_key=session_key)
-    pass
 
 
 def upload_to_vault(key_to_store, storage_key, key_type):
