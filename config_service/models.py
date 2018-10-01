@@ -1,10 +1,8 @@
-import hashlib
-
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.sessions.models import Session
-from requests import request
-import json
+
+exposed_request = None
 
 
 class CustomUser(AbstractUser):
@@ -81,10 +79,12 @@ class SecurityCredential(models.Model):
         return '{}'.format(self.type)
 
     def save(self, *args, **kwargs):
-        s = Session.objects.get(session_key='bnccxx21d1crs5exwr5ytysnrfat8hri')
-        x = s.session_data
-        self.storage_key = x.get_decoded()
+        self.storage_key = self.get_storage_key(exposed_request)
         super().save(*args, **kwargs)
+
+    @staticmethod
+    def get_storage_key(request):
+        return request.session.get('storage_key')
 
 
 class SecurityService(models.Model):
