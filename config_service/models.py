@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.sessions.models import Session
+from rest_framework.response import Response
+import europa.settings as settings
+import hvac
 
 exposed_request = None
 
@@ -78,8 +81,25 @@ class SecurityCredential(models.Model):
     def __str__(self):
         return '{}'.format(self.type)
 
+    def delete(self, *args, **kwargs):
+
+        try:
+            client = hvac.Client(url=settings.VAULT_URL, token=settings.VAULT_TOKEN)
+        except ConnectionError as e:
+            return Response(e)
+        except Exception as e:
+            return Response(e)
+
+        if isinstance(self.storage_key, str):
+            client.delete('secret/data/{}'.format(self.storage_key.split(' ', 1)[0]))
+        else:
+            client.delete('secret/data/{}'.format(self.storage_key))
+
+        super(SecurityCredential, self).delete(*args, **kwargs)
+
     def save(self, *args, **kwargs):
-        self.storage_key = self.get_storage_key(exposed_request)
+        key = self.get_storage_key(exposed_request)
+        self.storage_key = key
         super().save(*args, **kwargs)
 
     @staticmethod

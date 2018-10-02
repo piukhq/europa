@@ -1,15 +1,12 @@
-from django.http import JsonResponse
-from django.contrib.sessions.backends.db import SessionStore
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from config_service.models import Configuration
 from config_service.serializers import ConfigurationSerializer
-from .forms import SecurityCredentialForm
+from django.http import JsonResponse
+from rest_framework.views import APIView
+from rest_framework.response import Response
 import ast
 import europa.settings as settings
 import hashlib
 import hvac
-import json
 
 
 class ConfigurationDetail(APIView):
@@ -57,12 +54,17 @@ class ConfigurationDetail(APIView):
 def prepare_data(request):
     data = {value: request.GET.get(value) for value in request.GET.keys()}
     storage_key = create_hash(data['credential_type'], data['service_type'], data['merchant_id'])
-    request.session['storage_key'] = storage_key
     key_to_store = data['file']
 
-    # if type_of_storage_key returns True, the value is a compound key. If False its an RSA key
-    type_of_storage_key = get_file_type(key_to_store)
-    upload_to_vault(key_to_store, storage_key, type_of_storage_key)
+    # if is_compound_key returns True, the compound key is a dictionary. If False an RSA key
+    is_compound_key = get_file_type(key_to_store)
+    vault = upload_to_vault(key_to_store, storage_key, is_compound_key)
+
+    if vault.status_code == 201:
+        request.session['storage_key'] = storage_key
+    else:
+        request.session['storage_key'] = vault.data
+
     return JsonResponse({}, status=200)
 
 
@@ -75,30 +77,46 @@ def create_hash(credential_type, service_type, merchant_id):
 
 
 def get_file_type(key_to_store):
-    try:
-        f = ast.literal_eval(key_to_store)
-        return isinstance(f, dict)
+    try:  # if key_to_store is a dict we know we have a compound key
+        return isinstance(ast.literal_eval(key_to_store), dict)
     except SyntaxError:
-        f = False
-        return f
+        return False
 
 
-def upload_to_vault(key_to_store, storage_key, key_type):
+def upload_to_vault(key_to_store, storage_key, is_compound_key):
     client = hvac.Client(url=settings.VAULT_URL, token=settings.VAULT_TOKEN)
 
-    if key_type:
+    if is_compound_key:
         try:  # Save to vault
-            client.write('secret/data/{}'.format(storage_key), data=ast.literal_eval(key_to_store))
-            print(client.read('secret/data/{}'.format(storage_key)))
+            if client.read('secret/data/{}'.format(storage_key)) is None:
+                client.write('secret/data/{}'.format(storage_key), data=ast.literal_eval(key_to_store))
+                return Response(status=201, data='Saved to vault')
+            else:
+                return Response(
+                    status=406,
+                    data='{} already exists and can not be overwritten'.format(storage_key)
+                )
+
+        except ConnectionError as e:
+            return Response(e)
         except Exception as e:
-            return JsonResponse({e})
+            return Response(e)
 
     else:
         try:
-            client.write('secret/data/{}'.format(storage_key), data={'value': key_to_store})
-            print(client.read('secret/data/{}'.format(storage_key)))
+            if client.read('secret/data/{}'.format(storage_key)) is None:
+                client.write('secret/data/{}'.format(storage_key), data={'value': key_to_store})
+                return Response(status=201, data='Saved to vault')
+            else:
+                return Response(
+                    status=406,
+                    data='{} already exists and can not be overwritten'.format(storage_key)
+                )
+
+        except ConnectionError as e:
+            return Response(e)
         except Exception as e:
-            return JsonResponse({e})
+            return Response(e)
 
 
 class HealthCheck(APIView):
