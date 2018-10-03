@@ -98,9 +98,15 @@ class SecurityCredential(models.Model):
         super(SecurityCredential, self).delete(*args, **kwargs)
 
     def save(self, *args, **kwargs):
+
         key = self.get_storage_key(exposed_request)
-        self.storage_key = key
-        super().save(*args, **kwargs)
+
+        try:  # Check if storage key exists, if it does don't save model as file in vault is updated anyway
+            SecurityCredential.objects.get(storage_key=key)
+            return Response(status=202, data='File in vault updated')
+        except SecurityCredential.DoesNotExist:
+            self.storage_key = key
+            super().save(*args, **kwargs)
 
     @staticmethod
     def get_storage_key(request):

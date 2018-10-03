@@ -56,14 +56,14 @@ def prepare_data(request):
     storage_key = create_hash(data['credential_type'], data['service_type'], data['merchant_id'])
     key_to_store = data['file']
 
-    # if is_compound_key returns True, the compound key is a dictionary. If False an RSA key
+    # if is_compound_key returns True, the compound key is a dictionary. If False the RSA key is string.
     is_compound_key = get_file_type(key_to_store)
     vault = upload_to_vault(key_to_store, storage_key, is_compound_key)
 
-    if vault.status_code == 201:
-        request.session['storage_key'] = storage_key
-    else:
+    if vault.status_code != 201:
         request.session['storage_key'] = vault.data
+    else:
+        request.session['storage_key'] = storage_key
 
     return JsonResponse({}, status=200)
 
@@ -88,14 +88,8 @@ def upload_to_vault(key_to_store, storage_key, is_compound_key):
 
     if is_compound_key:
         try:  # Save to vault
-            if client.read('secret/data/{}'.format(storage_key)) is None:
-                client.write('secret/data/{}'.format(storage_key), data=ast.literal_eval(key_to_store))
-                return Response(status=201, data='Saved to vault')
-            else:
-                return Response(
-                    status=406,
-                    data='{} already exists and can not be overwritten'.format(storage_key)
-                )
+            client.write('secret/data/{}'.format(storage_key), data=ast.literal_eval(key_to_store))
+            return Response(status=201, data='Saved to vault')
 
         except ConnectionError as e:
             return Response(e)
@@ -104,19 +98,13 @@ def upload_to_vault(key_to_store, storage_key, is_compound_key):
 
     else:
         try:
-            if client.read('secret/data/{}'.format(storage_key)) is None:
-                client.write('secret/data/{}'.format(storage_key), data={'value': key_to_store})
-                return Response(status=201, data='Saved to vault')
-            else:
-                return Response(
-                    status=406,
-                    data='{} already exists and can not be overwritten'.format(storage_key)
-                )
+            client.write('secret/data/{}'.format(storage_key), data={'value': key_to_store})
+            return Response(status=201, data='Saved to vault')
 
         except ConnectionError as e:
             return Response(e)
         except Exception as e:
-            return Response(e)
+            return Response(e.errors[0])
 
 
 class HealthCheck(APIView):

@@ -178,4 +178,4 @@ if SENTRY_DSN:
 
 # HashiCorp Vault
 VAULT_URL = env_var('VAULT_URL', 'http://127.0.0.1:8200')
-VAULT_TOKEN = env_var('VAULT_TOKEN', '4d53ac6f-0f97-29d9-26bf-06ebd736379a')
+VAULT_TOKEN = env_var('VAULT_TOKEN', '80823aaf-f77f-4111-3982-6dda2c302175')
