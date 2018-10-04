@@ -16,6 +16,7 @@ django-nested-admin = "*"
 requests = "*"
 hvac = "*"
 sentry-sdk = "*"
+voluptuous = "*"
 
 [dev-packages]
 

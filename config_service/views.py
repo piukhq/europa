@@ -3,7 +3,9 @@ from config_service.serializers import ConfigurationSerializer
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from .schemas import StorageKeySchema
 from sentry_sdk import capture_exception
+from voluptuous import MultipleInvalid
 import ast
 import europa.settings as settings
 import hashlib
@@ -54,6 +56,13 @@ class ConfigurationDetail(APIView):
 
 def prepare_data(request):
     data = {value: request.GET.get(value) for value in request.GET.keys()}
+
+    try:
+        StorageKeySchema(data)
+    except MultipleInvalid as e:
+        capture_exception(e)
+        return Response(e)
+
     storage_key = create_hash(data['credential_type'], data['service_type'], data['merchant_id'])
     key_to_store = data['file']
 
