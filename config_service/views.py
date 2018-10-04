@@ -3,6 +3,7 @@ from config_service.serializers import ConfigurationSerializer
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from sentry_sdk import capture_exception
 import ast
 import europa.settings as settings
 import hashlib
@@ -91,19 +92,17 @@ def upload_to_vault(key_to_store, storage_key, is_compound_key):
             client.write('secret/data/{}'.format(storage_key), data=ast.literal_eval(key_to_store))
             return Response(status=201, data='Saved to vault')
 
-        except ConnectionError as e:
-            return Response(e)
         except Exception as e:
-            return Response(e)
+            capture_exception(e)
+            return Response(e.errors[0])
 
     else:
         try:
             client.write('secret/data/{}'.format(storage_key), data={'value': key_to_store})
             return Response(status=201, data='Saved to vault')
 
-        except ConnectionError as e:
-            return Response(e)
         except Exception as e:
+            capture_exception(e)
             return Response(e.errors[0])
 
 

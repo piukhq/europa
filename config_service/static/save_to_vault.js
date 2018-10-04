@@ -45,18 +45,6 @@
             send_data(form_data);
         }
 
-        // function check_dict(form_data) {
-        //     var count = 0;
-        //     for (var data in form_data) {
-        //         if (form_data.hasOwnProperty(data)) count++;
-        //     }
-        //     if (count >= 4){
-        //         send_data(form_data)
-        //     } else {
-        //         alert("Select Merchant ID; Security Services Request Type; Security Credentials Type and choose a file")
-        //     }
-        // }
-
         function send_data(form_data){
             $.get({
                 url: '/form_data/',

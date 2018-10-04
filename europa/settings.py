@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 import europa
+import sentry_sdk
 from environment import env_var, read_env
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -178,4 +180,15 @@ if SENTRY_DSN:
 
 # HashiCorp Vault
 VAULT_URL = env_var('VAULT_URL', 'http://127.0.0.1:8200')
-VAULT_TOKEN = env_var('VAULT_TOKEN', '80823aaf-f77f-4111-3982-6dda2c302175')
+VAULT_TOKEN = env_var('VAULT_TOKEN', '16351e1b-b3e0-14c5-3d35-454b4d')
+
+ENVIRONMENT_ID = env_var('ENVIRONMENT_ID', 'dev').lower()
+SENTRY_DSN = env_var('SENTRY_DSN', 'https://3442f80327964d51a7452fc308a40a16@sentry.bink.com/31')
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        environment=ENVIRONMENT_ID,
+        integrations=[
+            DjangoIntegration()
+        ]
+    )

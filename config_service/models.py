@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.sessions.models import Session
 from rest_framework.response import Response
+from sentry_sdk import capture_exception
 import europa.settings as settings
 import hvac
 
@@ -85,9 +86,9 @@ class SecurityCredential(models.Model):
 
         try:
             client = hvac.Client(url=settings.VAULT_URL, token=settings.VAULT_TOKEN)
-        except ConnectionError as e:
-            return Response(e)
+
         except Exception as e:
+            capture_exception(e)
             return Response(e)
 
         if isinstance(self.storage_key, str):
@@ -101,7 +102,7 @@ class SecurityCredential(models.Model):
 
         key = self.get_storage_key(exposed_request)
 
-        try:  # Check if storage key exists, if it does don't save model as file in vault is updated anyway
+        try:  # If storage key exists, don't save to model a second time
             SecurityCredential.objects.get(storage_key=key)
             return Response(status=202, data='File in vault updated')
         except SecurityCredential.DoesNotExist:

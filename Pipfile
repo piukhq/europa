@@ -15,6 +15,7 @@ raven = "*"
 django-nested-admin = "*"
 requests = "*"
 hvac = "*"
+sentry-sdk = "*"
 
 [dev-packages]
 
