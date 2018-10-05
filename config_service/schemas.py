@@ -1,4 +1,4 @@
-from voluptuous import All, ALLOW_EXTRA, Invalid, Length, Optional, Required, Schema
+from voluptuous import All, Length, Required, Schema
 
 # Schemas
 StorageKeySchema = Schema({
