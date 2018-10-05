@@ -49,7 +49,7 @@
                 var x = Boolean;
 
                 for(var key in form_data){
-                    if(typeof form_data[key] !== 'string') {
+                    if(typeof form_data[key] !== 'string' || Object.keys(form_data).length !== 4) {
                         return false;
                     }else{
                         x = true;
