@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from .schemas import StorageKeySchema
 from sentry_sdk import capture_exception
 from voluptuous import MultipleInvalid
+from .vault_check_script import get_vault_items
 import ast
 import europa.settings as settings
 import hashlib
@@ -99,6 +100,7 @@ def upload_to_vault(key_to_store, storage_key, is_compound_key):
     if is_compound_key:
         try:  # Save to vault
             client.write('secret/data/{}'.format(storage_key), data=ast.literal_eval(key_to_store))
+            get_vault_items(storage_key)
             return Response(status=201, data='Saved to vault')
 
         except Exception as e:
@@ -108,6 +110,7 @@ def upload_to_vault(key_to_store, storage_key, is_compound_key):
     else:
         try:
             client.write('secret/data/{}'.format(storage_key), data={'value': key_to_store})
+            get_vault_items(storage_key)
             return Response(status=201, data='Saved to vault')
 
         except Exception as e:
