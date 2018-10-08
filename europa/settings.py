@@ -179,11 +179,11 @@ if SENTRY_DSN:
     }
 
 # HashiCorp Vault
-VAULT_URL = env_var('VAULT_URL', 'http://127.0.0.1:8200')
-VAULT_TOKEN = env_var('VAULT_TOKEN', '16351e1b-b3e0-14c5-3d35-454b4d')
+VAULT_URL = env_var('VAULT_URL')
+VAULT_TOKEN = env_var('VAULT_TOKEN')
 
 ENVIRONMENT_ID = env_var('ENVIRONMENT_ID', 'dev').lower()
-SENTRY_DSN = env_var('SENTRY_DSN', 'https://3442f80327964d51a7452fc308a40a16@sentry.bink.com/31')
+SENTRY_DSN = env_var('SENTRY_DSN')
 if SENTRY_DSN:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
