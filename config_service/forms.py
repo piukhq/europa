@@ -9,4 +9,3 @@ class SecurityCredentialForm(forms.ModelForm):
         fields = '__all__'
 
     key_to_store = forms.FileField()
-

@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.contrib.sessions.models import Session
 from rest_framework.response import Response
 from sentry_sdk import capture_exception
 import europa.settings as settings

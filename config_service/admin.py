@@ -17,7 +17,7 @@ class SecurityCredentialInline(NestedTabularInline):
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
     readonly_fields = ('storage_key', 'upload_button')
-    
+
     def upload_button(self, obj):
         return format_html(
             "<input class='button-primary upload_to_vault' value='Upload to Vault' />"
