@@ -96,19 +96,9 @@ class SecurityCredential(models.Model):
         super(SecurityCredential, self).delete(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-
         key = self.get_storage_key(exposed_request)
-
-        try:  # If storage key exists, don't save to model a second time
-            # TODO: Raise issue:
-            #  storage keys will not be deleted from the vault. If we allow storage keys to be updated and saved each
-            # time they're called we don't need too worry about keys becoming stale with old data
-
-            SecurityCredential.objects.get(storage_key=key)
-            return Response(status=202, data='File in vault updated')
-        except SecurityCredential.DoesNotExist:
-            self.storage_key = key
-            super().save(*args, **kwargs)
+        self.storage_key = key
+        super().save(*args, **kwargs)
 
     @staticmethod
     def get_storage_key(request):
