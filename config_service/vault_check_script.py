@@ -1,9 +1,8 @@
 from .models import SecurityCredential
-import europa.settings as settings
-import hvac
+from .vault_connector import connect_to_vault
 
 
-client = hvac.Client(url=settings.VAULT_URL, token=settings.VAULT_TOKEN)
+client = connect_to_vault()
 
 
 def get_vault_items(new_key):

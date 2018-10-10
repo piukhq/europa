@@ -1,9 +1,8 @@
+from .vault_connector import connect_to_vault
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from rest_framework.response import Response
 from sentry_sdk import capture_exception
-import europa.settings as settings
-import hvac
 
 
 exposed_request = None
@@ -85,7 +84,7 @@ class SecurityCredential(models.Model):
     def delete(self, *args, **kwargs):
 
         try:
-            client = hvac.Client(url=settings.VAULT_URL, token=settings.VAULT_TOKEN)
+            client = connect_to_vault()
 
         except Exception as e:
             capture_exception(e)
@@ -93,8 +92,6 @@ class SecurityCredential(models.Model):
 
         if isinstance(self.storage_key, str):
             client.delete('secret/data/{}'.format(self.storage_key.split(' ', 1)[0]))
-        else:
-            client.delete('secret/data/{}'.format(self.storage_key))
 
         super(SecurityCredential, self).delete(*args, **kwargs)
 
@@ -103,6 +100,10 @@ class SecurityCredential(models.Model):
         key = self.get_storage_key(exposed_request)
 
         try:  # If storage key exists, don't save to model a second time
+            # TODO: Raise issue:
+            #  storage keys will not be deleted from the vault. If we allow storage keys to be updated and saved each
+            # time they're called we don't need too worry about keys becoming stale with old data
+
             SecurityCredential.objects.get(storage_key=key)
             return Response(status=202, data='File in vault updated')
         except SecurityCredential.DoesNotExist:

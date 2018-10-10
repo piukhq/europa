@@ -1,17 +1,12 @@
+from .schemas import StorageKeySchema
+from .vault_logic import create_hash, store_key_in_session, get_file_type, upload_to_vault
 from config_service.models import Configuration
 from config_service.serializers import ConfigurationSerializer
 from django.http import JsonResponse
-from rest_framework.decorators import api_view
-from rest_framework.views import APIView
 from rest_framework.response import Response
-from .schemas import StorageKeySchema
+from rest_framework.views import APIView
 from sentry_sdk import capture_exception
 from voluptuous import MultipleInvalid
-from .vault_check_script import get_vault_items
-import ast
-import europa.settings as settings
-import hashlib
-import hvac
 
 
 class ConfigurationDetail(APIView):
@@ -59,7 +54,7 @@ class ConfigurationDetail(APIView):
 def prepare_data(request):
     data = {value: request.GET.get(value) for value in request.GET.keys()}
 
-    try:
+    try:  # Validate payload
         StorageKeySchema(data)
     except MultipleInvalid as e:
         capture_exception(e.error_message)
@@ -67,61 +62,12 @@ def prepare_data(request):
 
     storage_key = create_hash(data['credential_type'], data['service_type'], data['merchant_id'])
     key_to_store = data['file']
-
-    # if is_compound_key returns True, the compound key is a dictionary. If False the RSA key is string.
     is_compound_key = get_file_type(key_to_store)
+
     vault = upload_to_vault(key_to_store, storage_key, is_compound_key)
     store_key_in_session(request, vault.status_code, storage_key)
 
     return JsonResponse({}, status=200)
-
-
-def create_hash(credential_type, service_type, merchant_id):
-    hashed_storage_key = hashlib.sha256(
-        "{}.{}.{}".format(
-            credential_type, service_type, merchant_id).encode()
-    )
-    return hashed_storage_key.hexdigest()
-
-
-def store_key_in_session(request, vault_status_code, storage_key):
-    if vault_status_code != 201:
-        request.session['storage_key'] = vault_status_code.data
-    else:
-        request.session['storage_key'] = storage_key
-
-
-def get_file_type(key_to_store):
-    try:  # if key_to_store is a dict we know we have a compound key
-        return isinstance(ast.literal_eval(key_to_store), dict)
-    except SyntaxError:
-        return False
-    except ValueError:
-        return False
-
-
-def upload_to_vault(key_to_store, storage_key, is_compound_key):
-    client = hvac.Client(url=settings.VAULT_URL, token=settings.VAULT_TOKEN)
-
-    if is_compound_key:
-        try:  # Save to vault
-            client.write('secret/data/{}'.format(storage_key), data=ast.literal_eval(key_to_store))
-            get_vault_items(storage_key)
-            return Response(status=201, data='Saved to vault')
-
-        except Exception as e:
-            capture_exception(e)
-            return Response(e)
-
-    else:
-        try:
-            client.write('secret/data/{}'.format(storage_key), data={'value': key_to_store})
-            get_vault_items(storage_key)
-            return Response(status=201, data='Saved to vault')
-
-        except Exception as e:
-            capture_exception(e)
-            return Response(e)
 
 
 class HealthCheck(APIView):
