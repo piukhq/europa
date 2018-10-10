@@ -1,13 +1,21 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.db import models
 from django.forms import Textarea
 from django.utils.html import format_html
 from nested_admin.nested import NestedModelAdmin, NestedTabularInline
-from config_service.forms import SecurityCredentialForm
 from config_service.models import Configuration, SecurityCredential, CustomUser, SecurityService
 
 admin.site.register(CustomUser, UserAdmin)
+
+
+class SecurityCredentialForm(forms.ModelForm):
+    class Meta:
+        model = SecurityCredential
+        fields = '__all__'
+
+    key_to_store = forms.FileField()
 
 
 class SecurityCredentialInline(NestedTabularInline):
