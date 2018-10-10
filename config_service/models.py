@@ -88,7 +88,7 @@ class SecurityCredential(models.Model):
 
         except Exception as e:
             capture_exception(e)
-            return Response(e)
+            return Response(status=503, data='Service unavailable')
 
         if isinstance(self.storage_key, str):
             client.delete('secret/data/{}'.format(self.storage_key.split(' ', 1)[0]))
