@@ -3,4 +3,5 @@ import hvac
 
 
 def connect_to_vault():
-    return hvac.Client(url=settings.VAULT_URL, token=settings.VAULT_TOKEN)
+    client = hvac.Client(url=settings.VAULT_URL, token=settings.VAULT_TOKEN)
+    return client
