@@ -1,6 +1,6 @@
 import hashlib
 import json
-
+import mock
 from django.test import TestCase
 from django.urls import reverse
 
@@ -31,6 +31,19 @@ class TestConfigService(TestCase):
         self.inbound_security_creds = {'type': 'public_key', 'security_service': self.inbound_service}
         self.outbound_security_creds = {'type': 'public_key', 'security_service': self.outbound_service}
 
+        hashed_inbound_storage_key = hashlib.sha256(
+            "{}.{}.{}".format(
+                self.inbound_security_creds['type'],
+                self.inbound_service.type,
+                self.inbound_service.configuration.merchant_id
+            ).encode()
+        )
+        inbound_storage_key = hashed_inbound_storage_key.hexdigest()
+
+        patcher = mock.patch('config_service.models.SecurityCredential.get_storage_key')
+        self.mock_get_storage_key = patcher.start()
+        self.mock_get_storage_key._mock_return_value = inbound_storage_key
+
         SecurityCredential.objects.create(**self.inbound_security_creds)
         SecurityCredential.objects.create(**self.outbound_security_creds)
 
@@ -45,15 +58,6 @@ class TestConfigService(TestCase):
 
         inbound_storage_key = hashed_inbound_storage_key.hexdigest()
 
-        hashed_outbound_storage_key = hashlib.sha256(
-            "{}.{}.{}".format(
-                self.inbound_security_creds['type'],
-                self.inbound_service.type,
-                self.inbound_service.configuration.merchant_id
-            ).encode()
-        )
-
-        outbound_storage_key = hashed_outbound_storage_key.hexdigest()
         expected_resp = {
             'id': self.config.id,
             'merchant_id': 'fake-merchant',
@@ -71,9 +75,8 @@ class TestConfigService(TestCase):
                         {'credential_type': self.inbound_security_creds['type'], 'storage_key': inbound_storage_key}]
                 },
                 'outbound': {
-                    'service': self.outbound_service.type,
-                    'credentials': [
-                        {'credential_type': self.outbound_security_creds['type'], 'storage_key': outbound_storage_key}]
+                    'service': 0,
+                    'credentials': []
                 }
             }
         }

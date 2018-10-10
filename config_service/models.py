@@ -5,6 +5,7 @@ from sentry_sdk import capture_exception
 import europa.settings as settings
 import hvac
 
+
 exposed_request = None
 
 

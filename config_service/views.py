@@ -1,6 +1,7 @@
 from config_service.models import Configuration
 from config_service.serializers import ConfigurationSerializer
 from django.http import JsonResponse
+from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .schemas import StorageKeySchema
@@ -61,8 +62,8 @@ def prepare_data(request):
     try:
         StorageKeySchema(data)
     except MultipleInvalid as e:
-        capture_exception(e)
-        return Response(e)
+        capture_exception(e.error_message)
+        return JsonResponse({'error_message': e.error_message})
 
     storage_key = create_hash(data['credential_type'], data['service_type'], data['merchant_id'])
     key_to_store = data['file']
@@ -70,11 +71,7 @@ def prepare_data(request):
     # if is_compound_key returns True, the compound key is a dictionary. If False the RSA key is string.
     is_compound_key = get_file_type(key_to_store)
     vault = upload_to_vault(key_to_store, storage_key, is_compound_key)
-
-    if vault.status_code != 201:
-        request.session['storage_key'] = vault.data
-    else:
-        request.session['storage_key'] = storage_key
+    store_key_in_session(request, vault.status_code, storage_key)
 
     return JsonResponse({}, status=200)
 
@@ -87,10 +84,19 @@ def create_hash(credential_type, service_type, merchant_id):
     return hashed_storage_key.hexdigest()
 
 
+def store_key_in_session(request, vault_status_code, storage_key):
+    if vault_status_code != 201:
+        request.session['storage_key'] = vault_status_code.data
+    else:
+        request.session['storage_key'] = storage_key
+
+
 def get_file_type(key_to_store):
     try:  # if key_to_store is a dict we know we have a compound key
         return isinstance(ast.literal_eval(key_to_store), dict)
     except SyntaxError:
+        return False
+    except ValueError:
         return False
 
 
@@ -105,7 +111,7 @@ def upload_to_vault(key_to_store, storage_key, is_compound_key):
 
         except Exception as e:
             capture_exception(e)
-            return Response(e.errors[0])
+            return Response(e)
 
     else:
         try:
@@ -115,7 +121,7 @@ def upload_to_vault(key_to_store, storage_key, is_compound_key):
 
         except Exception as e:
             capture_exception(e)
-            return Response(e.errors[0])
+            return Response(e)
 
 
 class HealthCheck(APIView):

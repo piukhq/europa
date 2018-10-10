@@ -17,6 +17,7 @@ requests = "*"
 hvac = "*"
 sentry-sdk = "*"
 voluptuous = "*"
+mock = "*"
 
 [dev-packages]
 
