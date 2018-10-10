@@ -64,12 +64,11 @@
         }
 
         function send_data(form_data){
-            $.get({
+            $.ajax({
+                type: 'GET',
                 url: '/form_data/',
                 contentType: 'application/x-www-form-urlencoded',
                 data: form_data,
-                success: console.log('success'),
-                error: console.log('error')
             });
         }
 
