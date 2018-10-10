@@ -32,6 +32,7 @@ class TestVaultFunctions(TestCase):
         mock_create_hash.return_value = 'abc'
         mock_get_file_type.return_value = True
         mock_upload_to_vault.return_value = Response(status=201)
+        mock_store_key_in_session.return_value = None
 
         response = self.client.get('/form_data/', self.data)
         self.assertEqual(response.status_code, 200)

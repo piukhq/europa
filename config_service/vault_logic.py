@@ -1,9 +1,17 @@
-from .vault_check_script import get_vault_items
 from .vault_connector import connect_to_vault
+from .models import SecurityCredential
 from rest_framework.response import Response
 from sentry_sdk import capture_exception
 import ast
 import hashlib
+
+
+def get_vault_items(new_key):
+    client = connect_to_vault()
+    storage_keys = SecurityCredential.objects.all()
+    for key in storage_keys:
+        print(client.read('secret/data/{}'.format(key.storage_key)))
+    print(client.read('secret/data/{}'.format(new_key)))
 
 
 def create_hash(credential_type, service_type, merchant_id):
