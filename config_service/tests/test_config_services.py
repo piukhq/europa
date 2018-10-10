@@ -76,7 +76,9 @@ class TestConfigService(TestCase):
                 },
                 'outbound': {
                     'service': 0,
-                    'credentials': []
+                    'credentials': [
+                        {'credential_type': self.inbound_security_creds['type'], 'storage_key': inbound_storage_key}
+                    ]
                 }
             }
         }
