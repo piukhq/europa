@@ -62,10 +62,10 @@ def prepare_data(request):
 
     storage_key = create_hash(data['credential_type'], data['service_type'], data['merchant_id'])
     key_to_store = data['file']
-    is_compound_key = get_file_type(key_to_store)
 
+    is_compound_key = get_file_type(key_to_store)
     vault = upload_to_vault(key_to_store, storage_key, is_compound_key)
-    store_key_in_session(request, vault.status_code, storage_key)
+    store_key_in_session(request, vault, storage_key)
 
     return JsonResponse({}, status=200)
 

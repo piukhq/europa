@@ -78,3 +78,20 @@ class TestVaultFunctions(TestCase):
     def test_get_file_type_is_type_dict(self):
         response = vault_logic.get_file_type('{"test": "test"}')
         self.assertEqual(response, True)
+
+    @mock.patch('config_service.vault_logic.connect_to_vault')
+    def test_upload_to_vault(self, mock_connect_to_vault):
+        response = vault_logic.upload_to_vault('test_key', self.storage_key, False)
+        self.assertTrue(mock_connect_to_vault.called)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data, 'Saved to vault')
+
+    def test_upload_to_vault_no_connection(self):
+        response = vault_logic.upload_to_vault('test_key', self.storage_key, False)
+        self.assertEqual(response.data, 'Service unavailable')
+        self.assertEqual(response.status_code, 503)
+
+    def test_upload_to_vault_compound_key_no_connection(self):
+        response = vault_logic.upload_to_vault('{test: test}', self.storage_key, True)
+        self.assertEqual(response.data, 'Service unavailable')
+        self.assertEqual(response.status_code, 503)
