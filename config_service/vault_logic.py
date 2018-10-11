@@ -2,7 +2,6 @@ import ast
 import hashlib
 
 import hvac
-from rest_framework.response import Response
 from sentry_sdk import capture_exception
 
 import europa.settings as settings
