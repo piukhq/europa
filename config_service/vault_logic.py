@@ -1,8 +1,9 @@
-from .vault_connector import connect_to_vault
 from rest_framework.response import Response
 from sentry_sdk import capture_exception
 import ast
 import hashlib
+
+from config_service.vault_connector import connect_to_vault
 
 
 def create_hash(credential_type, service_type, merchant_id):
@@ -20,31 +21,21 @@ def store_key_in_session(request, vault_response, storage_key):
         request.session['storage_key'] = storage_key
 
 
-def get_file_type(key_to_store):
+def format_key(key_to_store):
     try:  # if key_to_store is a dict we know we have a compound key
-        return isinstance(ast.literal_eval(key_to_store), dict)
-    except SyntaxError:
-        return False
-    except ValueError:
-        return False
+        isinstance(ast.literal_eval(key_to_store), dict)
+        return ast.literal_eval(key_to_store)
+    except (SyntaxError, ValueError):
+        return {'value': key_to_store}
 
 
-def upload_to_vault(key_to_store, storage_key, is_compound_key):
+def upload_to_vault(key_to_store, storage_key):
     client = connect_to_vault()
-    if is_compound_key:
-        try:  # Save to vault
-            client.write('secret/data/{}'.format(storage_key), data=ast.literal_eval(key_to_store))
-            return Response(status=201, data='Saved to vault')
 
-        except Exception as e:
-            capture_exception(e)
-            return Response(status=503, data='Service unavailable')
+    try:  # Save to vault
+        client.write('secret/data/{}'.format(storage_key), data=key_to_store)
+        return Response(status=201, data='Saved to vault')
 
-    else:
-        try:
-            client.write('secret/data/{}'.format(storage_key), data={'value': key_to_store})
-            return Response(status=201, data='Saved to vault')
-
-        except Exception as e:
-            capture_exception(e)
-            return Response(status=503, data='Service unavailable')
+    except Exception as e:
+        capture_exception(e)
+        return Response(status=503, data='Service unavailable')

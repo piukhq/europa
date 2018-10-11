@@ -25,18 +25,18 @@ class TestVaultFunctions(TestCase):
     # If data fits with schema the mocked methods will be called and the response will return 200
     @mock.patch('config_service.views.store_key_in_session')
     @mock.patch('config_service.views.upload_to_vault')
-    @mock.patch('config_service.views.get_file_type')
+    @mock.patch('config_service.views.format_key')
     @mock.patch('config_service.views.create_hash')
-    def test_prepare_data_fits_schema(self, mock_create_hash, mock_get_file_type,
+    def test_prepare_data_fits_schema(self, mock_create_hash, mock_format_key,
                                       mock_upload_to_vault, mock_store_key_in_session):
         mock_create_hash.return_value = 'abc'
-        mock_get_file_type.return_value = True
+        mock_format_key.return_value = True
         mock_upload_to_vault.return_value = Response(status=201)
 
         response = self.client.get('/form_data/', self.data)
 
         self.assertTrue(mock_create_hash.called)
-        self.assertTrue(mock_get_file_type.called)
+        self.assertTrue(mock_format_key.called)
         self.assertTrue(mock_upload_to_vault.called)
         self.assertTrue(mock_store_key_in_session.called)
         self.assertEqual(response.status_code, 200)
@@ -60,10 +60,10 @@ class TestVaultFunctions(TestCase):
         self.assertEqual(self.storage_key, response)
 
     @mock.patch('config_service.views.upload_to_vault')
-    @mock.patch('config_service.views.get_file_type')
+    @mock.patch('config_service.views.format_key')
     @mock.patch('config_service.views.create_hash')
     def test_store_key_in_session_when_vault_status_is_201(self, mock_create_hash,
-                                                           mock_get_file_type, mock_upload_to_vault):
+                                                           mock_format_key, mock_upload_to_vault):
         mock_create_hash.return_value = self.storage_key
         mock_upload_to_vault.return_value = Response(status=201)
         self.client.get('/form_data/', self.data)
@@ -72,26 +72,26 @@ class TestVaultFunctions(TestCase):
         self.assertEqual(session["storage_key"], self.storage_key)
 
     def test_get_file_type_is_not_type_dict(self):
-        response = vault_logic.get_file_type(self.data['file'])
-        self.assertEqual(response, False)
+        response = vault_logic.format_key(self.data['file'])
+        self.assertEqual(response, {"value": "test_file"})
 
     def test_get_file_type_is_type_dict(self):
-        response = vault_logic.get_file_type('{"test": "test"}')
-        self.assertEqual(response, True)
+        response = vault_logic.format_key('{"test": "test"}')
+        self.assertEqual(response, {'test': 'test'})
 
     @mock.patch('config_service.vault_logic.connect_to_vault')
     def test_upload_to_vault(self, mock_connect_to_vault):
-        response = vault_logic.upload_to_vault('test_key', self.storage_key, False)
+        response = vault_logic.upload_to_vault('test_key', self.storage_key)
         self.assertTrue(mock_connect_to_vault.called)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data, 'Saved to vault')
 
     def test_upload_to_vault_no_connection(self):
-        response = vault_logic.upload_to_vault('test_key', self.storage_key, False)
+        response = vault_logic.upload_to_vault('test_key', self.storage_key)
         self.assertEqual(response.data, 'Service unavailable')
         self.assertEqual(response.status_code, 503)
 
     def test_upload_to_vault_compound_key_no_connection(self):
-        response = vault_logic.upload_to_vault('{test: test}', self.storage_key, True)
+        response = vault_logic.upload_to_vault('{test: test}', self.storage_key)
         self.assertEqual(response.data, 'Service unavailable')
         self.assertEqual(response.status_code, 503)

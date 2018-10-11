@@ -1,12 +1,13 @@
-from .schemas import StorageKeySchema
-from .vault_logic import create_hash, store_key_in_session, get_file_type, upload_to_vault
-from config_service.models import Configuration
-from config_service.serializers import ConfigurationSerializer
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from sentry_sdk import capture_exception
 from voluptuous import MultipleInvalid
+
+from config_service.models import Configuration
+from config_service.schemas import StorageKeySchema
+from config_service.serializers import ConfigurationSerializer
+from config_service.vault_logic import create_hash, store_key_in_session, format_key, upload_to_vault
 
 
 class ConfigurationDetail(APIView):
@@ -63,8 +64,8 @@ def prepare_data(request):
     storage_key = create_hash(data['credential_type'], data['service_type'], data['merchant_id'])
     key_to_store = data['file']
 
-    is_compound_key = get_file_type(key_to_store)
-    vault = upload_to_vault(key_to_store, storage_key, is_compound_key)
+    key_to_save = format_key(key_to_store)
+    vault = upload_to_vault(key_to_save, storage_key)
     store_key_in_session(request, vault, storage_key)
 
     return JsonResponse({}, status=200)

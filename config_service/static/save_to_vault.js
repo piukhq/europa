@@ -11,7 +11,7 @@
 
             /* The 'upload to vault' button is rendered dynamically depending on how many security credentials there are
          * so here we grab the values relative to the button that's clicked */
-
+            $(this).css('background', '#428bca');
             // Clicked button
             var table_row = $(this).parents("tr.djn-tr.form-row");
 

@@ -1,9 +1,9 @@
-from .vault_connector import connect_to_vault
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 from rest_framework.response import Response
 from sentry_sdk import capture_exception
 
+from config_service.vault_connector import connect_to_vault
 
 exposed_request = None
 
@@ -82,7 +82,6 @@ class SecurityCredential(models.Model):
         return '{}'.format(self.type)
 
     def delete(self, *args, **kwargs):
-
         try:
             client = connect_to_vault()
 
