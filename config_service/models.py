@@ -3,7 +3,7 @@ from django.db import models
 from rest_framework.response import Response
 from sentry_sdk import capture_exception
 
-from config_service.vault_connector import connect_to_vault
+from config_service.vault_logic import connect_to_vault
 
 exposed_request = None
 

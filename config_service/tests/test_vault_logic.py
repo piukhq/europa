@@ -65,7 +65,7 @@ class TestVaultFunctions(TestCase):
     def test_store_key_in_session_when_vault_status_is_201(self, mock_create_hash,
                                                            mock_format_key, mock_upload_to_vault):
         mock_create_hash.return_value = self.storage_key
-        mock_upload_to_vault.return_value = Response(status=201)
+        mock_upload_to_vault.return_value = True
         self.client.get('/form_data/', self.data)
         session = self.client.session
 
@@ -83,15 +83,12 @@ class TestVaultFunctions(TestCase):
     def test_upload_to_vault(self, mock_connect_to_vault):
         response = vault_logic.upload_to_vault('test_key', self.storage_key)
         self.assertTrue(mock_connect_to_vault.called)
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data, 'Saved to vault')
+        self.assertEqual(response, True)
 
     def test_upload_to_vault_no_connection(self):
         response = vault_logic.upload_to_vault('test_key', self.storage_key)
-        self.assertEqual(response.data, 'Service unavailable')
-        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response, False)
 
     def test_upload_to_vault_compound_key_no_connection(self):
         response = vault_logic.upload_to_vault('{test: test}', self.storage_key)
-        self.assertEqual(response.data, 'Service unavailable')
-        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response, False)

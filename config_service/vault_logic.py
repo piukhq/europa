@@ -1,9 +1,11 @@
-from rest_framework.response import Response
-from sentry_sdk import capture_exception
 import ast
 import hashlib
 
-from config_service.vault_connector import connect_to_vault
+import hvac
+from rest_framework.response import Response
+from sentry_sdk import capture_exception
+
+import europa.settings as settings
 
 
 def create_hash(credential_type, service_type, merchant_id):
@@ -15,10 +17,10 @@ def create_hash(credential_type, service_type, merchant_id):
 
 
 def store_key_in_session(request, vault_response, storage_key):
-    if vault_response.status_code != 201:
-        request.session['storage_key'] = vault_response.data
-    else:
+    if vault_response:
         request.session['storage_key'] = storage_key
+    else:
+        request.session['storage_key'] = 'Service unavailable'
 
 
 def format_key(key_to_store):
@@ -34,8 +36,13 @@ def upload_to_vault(key_to_store, storage_key):
 
     try:  # Save to vault
         client.write('secret/data/{}'.format(storage_key), data=key_to_store)
-        return Response(status=201, data='Saved to vault')
+        return True
 
     except Exception as e:
         capture_exception(e)
-        return Response(status=503, data='Service unavailable')
+        return False
+
+
+def connect_to_vault():
+    client = hvac.Client(url=settings.VAULT_URL, token=settings.VAULT_TOKEN)
+    return client
