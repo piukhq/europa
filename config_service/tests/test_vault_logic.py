@@ -30,8 +30,8 @@ class TestVaultFunctions(TestCase):
     def test_prepare_data_fits_schema(self, mock_create_hash, mock_format_key,
                                       mock_upload_to_vault, mock_store_key_in_session):
         mock_create_hash.return_value = 'abc'
-        mock_format_key.return_value = True
-        mock_upload_to_vault.return_value = Response(status=201)
+        mock_format_key.return_value = {'test': 'test'}
+        mock_upload_to_vault.return_value = True
 
         response = self.client.get('/form_data/', self.data)
 
