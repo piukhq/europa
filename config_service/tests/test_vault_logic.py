@@ -2,7 +2,6 @@ import hashlib
 import mock
 from config_service import vault_logic
 from django.test import TestCase, Client
-from rest_framework.response import Response
 
 
 class TestVaultFunctions(TestCase):
