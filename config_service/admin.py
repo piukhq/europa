@@ -48,6 +48,7 @@ class SecurityServiceInline(NestedTabularInline):
 
 @admin.register(Configuration)
 class ConfigurationAdmin(NestedModelAdmin):
+    list_filter = ('merchant_id', 'handler_type')
     list_display = ('merchant_id', 'handler_type')
     inlines = (SecurityServiceInline,)
 

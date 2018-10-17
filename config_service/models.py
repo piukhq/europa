@@ -47,7 +47,7 @@ class Configuration(models.Model):
         (CRITICAL_LOG_LEVEL, "Critical")
     )
 
-    merchant_id = models.CharField(max_length=64)
+    merchant_id = models.CharField(verbose_name='Merchant Slug', max_length=64)
     merchant_url = models.CharField(max_length=256)
     handler_type = models.IntegerField(choices=HANDLER_TYPE_CHOICES)
     integration_service = models.IntegerField(choices=INTEGRATION_CHOICES)
