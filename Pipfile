@@ -6,12 +6,12 @@ name = "pypi"
 [packages]
 django = "*"
 djangorestframework = "*"
-"psycopg2-binary" = "*"
 pyjwt = "*"
 pytest = "*"
 pytest-django = "*"
 pytest-cov = "*"
 raven = "*"
 django-nested-admin = "*"
+"psycopg2" = "*"
 
 [dev-packages]
