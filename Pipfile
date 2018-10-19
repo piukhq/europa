@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 django = "*"
 djangorestframework = "*"
-"psycopg2-binary" = "*"
 pyjwt = "*"
 pytest = "*"
 pytest-django = "*"
@@ -18,6 +17,7 @@ hvac = "*"
 sentry-sdk = "*"
 voluptuous = "*"
 mock = "*"
+"psycopg2" = "*"
 
 [dev-packages]
 
