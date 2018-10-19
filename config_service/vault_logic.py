@@ -43,5 +43,4 @@ def upload_to_vault(key_to_store, storage_key):
 
 
 def connect_to_vault():
-    client = hvac.Client(url=settings.VAULT_URL, token=settings.VAULT_TOKEN)
-    return client
+    return hvac.Client(url=settings.VAULT_URL, token=settings.VAULT_TOKEN)

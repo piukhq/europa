@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from rest_framework.response import Response
@@ -82,20 +83,25 @@ class SecurityCredential(models.Model):
         return '{}'.format(self.type)
 
     def delete(self, *args, **kwargs):
-        try:
-            client = connect_to_vault()
 
-        except Exception as e:
-            capture_exception(e)
-            return Response(status=503, data='Service unavailable')
+        client = connect_to_vault()
 
         if isinstance(self.storage_key, str):
-            client.delete('secret/data/{}'.format(self.storage_key.split(' ', 1)[0]))
+            try:
+                client.delete('secret/data/{}'.format(self.storage_key.split(' ', 1)[0]))
+            except Exception as e:
+                capture_exception(e)
+                messages.set_level(exposed_request, messages.ERROR)
+                messages.error(exposed_request, "Can not connect to the vault! The item has not been deleted.")
+                return Response(status=503, data='Service unavailable')
 
         super(SecurityCredential, self).delete(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         key = self.get_storage_key(exposed_request)
+        if key == "Service unavailable":
+            messages.set_level(exposed_request, messages.ERROR)
+            messages.error(exposed_request, "Can not connect to the vault! The file has not been saved.")
         self.storage_key = key
         super().save(*args, **kwargs)
 
