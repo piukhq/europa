@@ -1,8 +1,13 @@
 from django.http import JsonResponse
-from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from sentry_sdk import capture_exception
+from voluptuous import MultipleInvalid
+
 from config_service.models import Configuration
+from config_service.schemas import StorageKeySchema
 from config_service.serializers import ConfigurationSerializer
+from config_service.vault_logic import create_hash, store_key_in_session, format_key, upload_to_vault
 
 
 class ConfigurationDetail(APIView):
@@ -45,6 +50,25 @@ class ConfigurationDetail(APIView):
         config['security_credentials'] = {'inbound': inbound_credentials, 'outbound': outbound_credentials}
 
         return JsonResponse(config, status=200)
+
+
+def prepare_data(request):
+    data = {value: request.GET.get(value) for value in request.GET.keys()}
+
+    try:  # Validate payload
+        StorageKeySchema(data)
+    except MultipleInvalid as e:
+        capture_exception(e.error_message)
+        return JsonResponse({'error_message': e.error_message})
+
+    storage_key = create_hash(data['credential_type'], data['service_type'], data['merchant_id'])
+    key_to_store = data['file']
+
+    key_to_save = format_key(key_to_store)
+    vault = upload_to_vault(key_to_save, storage_key)
+    store_key_in_session(request, vault, storage_key)
+
+    return JsonResponse({}, status=200)
 
 
 class HealthCheck(APIView):
