@@ -88,4 +88,3 @@ class Migration(migrations.Migration):
             unique_together={('request_type', 'configuration')},
         ),
     ]
-
