@@ -56,8 +56,7 @@ deploy-dev:
   script:
     - bash collectstatic.sh
     - ENVIRONMENT=dev deploystatic
-    - kubectl config use-context dev
-    - kubectl delete po $(kubectl get po --no-headers=true -l run=europa -o custom-columns=:metadata.name)
+    - kubectl delete po -n=dev -l=project=europa
   only:
     - develop
 
@@ -69,8 +68,8 @@ deploy-staging:
     - bash collectstatic.sh
     - ENVIRONMENT=staging deploystatic
     - kubectl config use-context staging
-    - 'kubectl patch deployment/europa --patch "{\"spec\": {\"template\": {\"spec\": {\"initContainers\": [{\"name\": \"migrate\",\"image\": \"olympus.azurecr.io/europa:$CI_COMMIT_TAG\"}]}}}}"'
-    - kubectl set image deployment/europa europa=olympus.azurecr.io/europa:$CI_COMMIT_TAG
+    - 'kubectl patch -n=staging deployment/europa --patch "{\"spec\": {\"template\": {\"spec\": {\"initContainers\": [{\"name\": \"migrate\",\"image\": \"olympus.azurecr.io/europa:$CI_COMMIT_TAG\"}]}}}}"'
+    - kubectl set image -n=staging deployment/europa europa=olympus.azurecr.io/europa:$CI_COMMIT_TAG
   only:
     - tags
 
@@ -82,8 +81,8 @@ deploy-prod:
     - bash collectstatic.sh
     - ENVIRONMENT=prod deploystatic
     - kubectl config use-context prod
-    - 'kubectl patch deployment/europa --patch "{\"spec\": {\"template\": {\"spec\": {\"initContainers\": [{\"name\": \"migrate\",\"image\": \"olympus.azurecr.io/europa:$CI_COMMIT_TAG\"}]}}}}"'
-    - kubectl set image deployment/europa europa=olympus.azurecr.io/europa:$CI_COMMIT_TAG
+    - 'kubectl patch -n=production deployment/europa --patch "{\"spec\": {\"template\": {\"spec\": {\"initContainers\": [{\"name\": \"migrate\",\"image\": \"olympus.azurecr.io/europa:$CI_COMMIT_TAG\"}]}}}}"'
+    - kubectl set image -n=production deployment/europa europa=olympus.azurecr.io/europa:$CI_COMMIT_TAG
   when: manual
   only:
     - tags
