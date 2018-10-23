@@ -99,7 +99,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'europa.wsgi.application'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-STATIC_URL = '/static/'
+STATIC_URL = env_var('STATIC_URL', '/static/')
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
