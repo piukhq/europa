@@ -98,19 +98,16 @@ class SecurityCredential(models.Model):
         super(SecurityCredential, self).delete(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        key = self.get_storage_key(exposed_request)
+        self.storage_key = self.get_storage_key(exposed_request)
 
-        if key == "Service unavailable":
+        if self.storage_key == "Service unavailable":
             messages.set_level(exposed_request, messages.ERROR)
             messages.error(exposed_request, "Can not connect to the vault! The file has not been saved.")
 
-        elif key is None:
+        elif self.storage_key is None:
             messages.set_level(exposed_request, messages.ERROR)
             messages.error(exposed_request, "Error generating storage key! The file has not been saved.")
             self.storage_key = "Error generating storage key. File not saved"
-
-        if key is not None:
-            self.storage_key = key
 
         super().save(*args, **kwargs)
 
