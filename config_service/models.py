@@ -103,7 +103,7 @@ class SecurityCredential(models.Model):
         if key == "Service unavailable":
             messages.set_level(exposed_request, messages.ERROR)
             messages.error(exposed_request, "Can not connect to the vault! The file has not been saved.")
-            
+
         elif key is None:
             messages.set_level(exposed_request, messages.ERROR)
             messages.error(exposed_request, "Error generating storage key! The file has not been saved.")
