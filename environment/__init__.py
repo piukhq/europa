@@ -16,7 +16,7 @@ def read_env():
         # import pdb; pdb.set_trace()
         with open('.env') as f:
             content = f.read()
-    except IOError as e:
+    except IOError:
         content = ''
 
     for line in content.splitlines():
