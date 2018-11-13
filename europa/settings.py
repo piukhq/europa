@@ -195,7 +195,7 @@ if SENTRY_DSN:
     )
 
 DATADOG_TRACE = {
-    'DEFAULT_SERVICE': 'hermes',
+    'DEFAULT_SERVICE': 'europa',
     'TAGS': {'env': env_var('DATADOG_APM_ENV')},
     'AGENT_HOSTNAME': env_var('DATADOG_APM_HOST', 'datadog-agent-trace.datadog'),
     'ENABLED': env_var('DATADOG_APM_ENABLED', False)
