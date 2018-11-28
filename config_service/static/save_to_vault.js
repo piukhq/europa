@@ -63,12 +63,32 @@
             }
         }
 
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = $.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        var csrftoken = getCookie('csrftoken');
+
         function send_data(form_data){
             $.ajax({
-                type: 'GET',
-                url: '/form_data/',
+                type: 'POST',
+                url: '/config_service/form_data/',
                 contentType: 'application/x-www-form-urlencoded',
-                data: form_data,
+                data: {
+                    'csrfmiddlewaretoken' : csrftoken,
+                    form_data
+                }
             });
         }
 
