@@ -8,16 +8,17 @@ class TestVaultFunctions(TestCase):
     def setUp(self):
         self.client = Client()
         self.data = {
-            'merchant_id': 'test',
-            'service_type': 'test_service',
-            'credential_type': 'test_credential',
-            'file': 'test_file'
+            'csrfmiddlewaretoken': 'test_token',
+            'form_data[merchant_id]': 'test',
+            'form_data[service_type]': 'test_service',
+            'form_data[credential_type]': 'test_credential',
+            'form_data[file]': 'test_file'
         }
         hashed_storage_key = hashlib.sha256(
             "{}.{}.{}".format(
-                self.data['credential_type'],
-                self.data['service_type'],
-                self.data['merchant_id']
+                self.data['form_data[credential_type]'],
+                self.data['form_data[service_type]'],
+                self.data['form_data[merchant_id]']
             ).encode())
         self.storage_key = hashed_storage_key.hexdigest()
 
@@ -32,7 +33,7 @@ class TestVaultFunctions(TestCase):
         mock_format_key.return_value = {'test': 'test'}
         mock_upload_to_vault.return_value = True
 
-        response = self.client.get('/config_service/form_data/', self.data)
+        response = self.client.post('/config_service/form_data/', self.data)
 
         self.assertTrue(mock_create_hash.called)
         self.assertTrue(mock_format_key.called)
@@ -52,9 +53,9 @@ class TestVaultFunctions(TestCase):
 
     def test_correct_hash_is_created(self):
         response = vault_logic.create_hash(
-            credential_type=self.data['credential_type'],
-            service_type=self.data['service_type'],
-            merchant_id=self.data['merchant_id']
+            credential_type=self.data['form_data[credential_type]'],
+            service_type=self.data['form_data[service_type]'],
+            merchant_id=self.data['form_data[merchant_id]']
         )
         self.assertEqual(self.storage_key, response)
 
@@ -65,13 +66,13 @@ class TestVaultFunctions(TestCase):
                                                            mock_format_key, mock_upload_to_vault):
         mock_create_hash.return_value = self.storage_key
         mock_upload_to_vault.return_value = True
-        self.client.get('/config_service/form_data/', self.data)
+        self.client.post('/config_service/form_data/', self.data)
         session = self.client.session
 
         self.assertEqual(session["storage_key"], self.storage_key)
 
     def test_get_file_type_is_not_type_dict(self):
-        response = vault_logic.format_key(self.data['file'])
+        response = vault_logic.format_key(self.data['form_data[file]'])
         self.assertEqual(response, {"value": "test_file"})
 
     def test_get_file_type_is_type_dict(self):
