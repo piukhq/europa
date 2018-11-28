@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'ddtrace.contrib.django',
     'config_service',
     'rest_framework',
     'nested_admin',
@@ -192,3 +193,10 @@ if SENTRY_DSN:
             DjangoIntegration()
         ]
     )
+
+DATADOG_TRACE = {
+    'DEFAULT_SERVICE': 'europa',
+    'TAGS': {'env': env_var('DATADOG_APM_ENV')},
+    'AGENT_HOSTNAME': env_var('DATADOG_APM_HOST', 'datadog-agent-trace.datadog'),
+    'ENABLED': env_var('DATADOG_APM_ENABLED', False)
+}

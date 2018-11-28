@@ -18,6 +18,7 @@ sentry-sdk = "*"
 voluptuous = "*"
 mock = "*"
 "psycopg2" = "*"
+ddtrace = "*"
 
 [dev-packages]
 
