@@ -32,7 +32,7 @@ class TestVaultFunctions(TestCase):
         mock_format_key.return_value = {'test': 'test'}
         mock_upload_to_vault.return_value = True
 
-        response = self.client.get('/form_data/', self.data)
+        response = self.client.get('/config_service/form_data/', self.data)
 
         self.assertTrue(mock_create_hash.called)
         self.assertTrue(mock_format_key.called)
@@ -41,7 +41,7 @@ class TestVaultFunctions(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_prepare_data_does_not_fit_schema(self):
-        response = self.client.get('/form_data/', {
+        response = self.client.get('/config_service/form_data/', {
             'merchant_id': 'test',
             'service_type': 'test_service',
         })
@@ -65,7 +65,7 @@ class TestVaultFunctions(TestCase):
                                                            mock_format_key, mock_upload_to_vault):
         mock_create_hash.return_value = self.storage_key
         mock_upload_to_vault.return_value = True
-        self.client.get('/form_data/', self.data)
+        self.client.get('/config_service/form_data/', self.data)
         session = self.client.session
 
         self.assertEqual(session["storage_key"], self.storage_key)
