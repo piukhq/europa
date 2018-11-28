@@ -104,7 +104,7 @@ class SecurityCredential(models.Model):
             messages.set_level(exposed_request, messages.ERROR)
             messages.error(exposed_request, "Can not connect to the vault! The file has not been saved.")
 
-        elif self.storage_key is None:
+        elif not self.storage_key:
             messages.set_level(exposed_request, messages.ERROR)
             messages.error(exposed_request, "Error generating storage key! The file has not been saved.")
             self.storage_key = "Error generating storage key. File not saved"
