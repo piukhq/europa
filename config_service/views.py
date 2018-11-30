@@ -53,7 +53,7 @@ class ConfigurationDetail(APIView):
 
 
 def prepare_data(request):
-    data = {value: request.GET.get(value) for value in request.GET.keys()}
+    data = {key: value for key, value in request.POST.items()}
 
     try:  # Validate payload
         StorageKeySchema(data)
@@ -61,7 +61,11 @@ def prepare_data(request):
         capture_exception(e.error_message)
         return JsonResponse({'error_message': e.error_message})
 
-    storage_key = create_hash(data['credential_type'], data['service_type'], data['merchant_id'])
+    storage_key = create_hash(
+        data['credential_type'],
+        data['service_type'],
+        data['merchant_id']
+    )
     key_to_store = data['file']
 
     key_to_save = format_key(key_to_store)
