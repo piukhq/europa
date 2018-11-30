@@ -40,6 +40,23 @@
 
         function build_dict(file_contents, credential_type, service_type){
 
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = $.trim(cookies[i]);
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            form_data['csrfmiddlewaretoken'] = getCookie('csrftoken');
             form_data['merchant_id'] = $('#id_merchant_id').val();
             form_data['service_type'] = service_type;
             form_data['credential_type'] = credential_type;
@@ -49,7 +66,7 @@
                 var x = Boolean;
 
                 for(var key in form_data){
-                    if(typeof form_data[key] !== 'string' || Object.keys(form_data).length !== 4) {
+                    if(typeof form_data[key] !== 'string' || Object.keys(form_data).length !== 5) {
                         return false;
                     }else{
                         x = true;
@@ -63,32 +80,12 @@
             }
         }
 
-        function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = $.trim(cookies[i]);
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-        var csrftoken = getCookie('csrftoken');
-
         function send_data(form_data){
             $.ajax({
                 type: 'POST',
                 url: '/config_service/form_data/',
                 contentType: 'application/x-www-form-urlencoded',
-                data: {
-                    'csrfmiddlewaretoken' : csrftoken,
-                    form_data
-                }
+                data: form_data
             });
         }
 
