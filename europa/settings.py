@@ -36,6 +36,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'europa',
     '.bink-dev.com',
+    '.bink-sandbox.com',
     '.bink-staging.com',
     '.bink.com',
 ]
