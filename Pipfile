@@ -6,12 +6,21 @@ name = "pypi"
 [packages]
 django = "*"
 djangorestframework = "*"
-"psycopg2-binary" = "*"
 pyjwt = "*"
 pytest = "*"
 pytest-django = "*"
 pytest-cov = "*"
 raven = "*"
 django-nested-admin = "*"
+requests = "*"
+hvac = "*"
+sentry-sdk = "*"
+voluptuous = "*"
+mock = "*"
+"psycopg2" = "*"
+ddtrace = "*"
 
 [dev-packages]
+
+[requires]
+python_version = "3.6"

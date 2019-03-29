@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 import europa
+import sentry_sdk
 from environment import env_var, read_env
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -34,6 +36,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'europa',
     '.bink-dev.com',
+    '.bink-sandbox.com',
     '.bink-staging.com',
     '.bink.com',
 ]
@@ -49,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'ddtrace.contrib.django',
     'config_service',
     'rest_framework',
     'nested_admin',
@@ -70,7 +74,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'config_service.request_exposer.ExposeRequestMiddleware',
 ]
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
 
 ROOT_URLCONF = 'europa.urls'
 
@@ -92,6 +100,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'europa.wsgi.application'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_URL = env_var('STATIC_URL', '/static/')
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
@@ -162,8 +172,6 @@ if not NO_AZURE_STORAGE:
     AZURE_CONTAINER = env_var('AZURE_CONTAINER')
     AZURE_CUSTOM_DOMAIN = env_var('AZURE_CUSTOM_DOMAIN')
 
-STATIC_URL = env_var('STATIC_URL', '/static/')
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 SENTRY_DSN = env_var('SENTRY_DSN', None)
 if SENTRY_DSN:
@@ -171,3 +179,25 @@ if SENTRY_DSN:
         'dsn': SENTRY_DSN,
         'release': europa.__version__,
     }
+
+# HashiCorp Vault
+VAULT_URL = env_var('VAULT_URL')
+VAULT_TOKEN = env_var('VAULT_TOKEN')
+
+ENVIRONMENT_ID = env_var('ENVIRONMENT_ID', 'dev').lower()
+SENTRY_DSN = env_var('SENTRY_DSN')
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        environment=ENVIRONMENT_ID,
+        integrations=[
+            DjangoIntegration()
+        ]
+    )
+
+DATADOG_TRACE = {
+    'DEFAULT_SERVICE': 'europa',
+    'TAGS': {'env': env_var('DATADOG_APM_ENV')},
+    'AGENT_HOSTNAME': env_var('DATADOG_APM_HOST', 'datadog-agent-trace.datadog'),
+    'ENABLED': env_var('DATADOG_APM_ENABLED', False)
+}

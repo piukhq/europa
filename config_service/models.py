@@ -1,7 +1,12 @@
-import hashlib
-
-from django.db import models
+from django.contrib import messages
 from django.contrib.auth.models import AbstractUser
+from django.db import models
+from rest_framework.response import Response
+from sentry_sdk import capture_exception
+
+from config_service.vault_logic import connect_to_vault
+
+exposed_request = None
 
 
 class CustomUser(AbstractUser):
@@ -13,12 +18,16 @@ class Configuration(models.Model):
     JOIN_HANDLER = 1
     VALIDATE_HANDLER = 2
     TRANSACTION_MATCHING = 3
+    CHECK_MEMBERSHIP_HANDLER = 4
+    TRANSACTION_HISTORY_HANDLER = 5
 
     HANDLER_TYPE_CHOICES = (
         (UPDATE_HANDLER, "Update"),
         (JOIN_HANDLER, "Join"),
         (VALIDATE_HANDLER, "Validate"),
         (TRANSACTION_MATCHING, "Transaction Matching"),
+        (CHECK_MEMBERSHIP_HANDLER, "Check Membership"),
+        (TRANSACTION_HISTORY_HANDLER, "Transaction History"),
     )
 
     SYNC_INTEGRATION = 0
@@ -43,7 +52,7 @@ class Configuration(models.Model):
         (CRITICAL_LOG_LEVEL, "Critical")
     )
 
-    merchant_id = models.CharField(max_length=64)
+    merchant_id = models.CharField(verbose_name='Merchant Slug', max_length=64)
     merchant_url = models.CharField(max_length=256)
     handler_type = models.IntegerField(choices=HANDLER_TYPE_CHOICES)
     integration_service = models.IntegerField(choices=INTEGRATION_CHOICES)
@@ -70,20 +79,45 @@ class SecurityCredential(models.Model):
     )
 
     type = models.CharField(max_length=32, choices=SECURITY_CRED_TYPE_CHOICES)
+    key_to_store = models.FileField(upload_to='media/', blank=True)
     storage_key = models.TextField(blank=True)
     security_service = models.ForeignKey('SecurityService', on_delete=models.CASCADE)
 
     def __str__(self):
         return '{}'.format(self.type)
 
+    def delete(self, *args, **kwargs):
+
+        client = connect_to_vault()
+
+        if isinstance(self.storage_key, str):
+            try:
+                client.delete('secret/data/{}'.format(self.storage_key.split(' ', 1)[0]))
+            except Exception as e:
+                capture_exception(e)
+                messages.set_level(exposed_request, messages.ERROR)
+                messages.error(exposed_request, "Can not connect to the vault! The item has not been deleted.")
+                return Response(status=503, data='Service unavailable')
+
+        super(SecurityCredential, self).delete(*args, **kwargs)
+
     def save(self, *args, **kwargs):
-        hashed_storage_key = hashlib.sha256(
-            "{}.{}.{}".format(
-                self.type, self.security_service.type, self.security_service.configuration.merchant_id
-            ).encode()
-        )
-        self.storage_key = hashed_storage_key.hexdigest()
+        self.storage_key = self.get_storage_key(exposed_request)
+
+        if self.storage_key == "Service unavailable":
+            messages.set_level(exposed_request, messages.ERROR)
+            messages.error(exposed_request, "Can not connect to the vault! The file has not been saved.")
+
+        elif not self.storage_key:
+            messages.set_level(exposed_request, messages.ERROR)
+            messages.error(exposed_request, "Error generating storage key! The file has not been saved.")
+            self.storage_key = "Error generating storage key. File not saved"
+
         super().save(*args, **kwargs)
+
+    @staticmethod
+    def get_storage_key(request):
+        return request.session.get('storage_key')
 
 
 class SecurityService(models.Model):
