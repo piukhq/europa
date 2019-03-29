@@ -67,7 +67,6 @@ deploy-staging:
   script:
     - bash collectstatic.sh
     - ENVIRONMENT=staging deploystatic
-    - kubectl config use-context staging
     - 'kubectl patch -n=staging deployment/europa --patch "{\"spec\": {\"template\": {\"spec\": {\"initContainers\": [{\"name\": \"migrate\",\"image\": \"olympus.azurecr.io/europa:$CI_COMMIT_TAG\"}]}}}}"'
     - kubectl set image -n=staging deployment/europa europa=olympus.azurecr.io/europa:$CI_COMMIT_TAG
   only:
@@ -80,7 +79,6 @@ deploy-prod:
   script:
     - bash collectstatic.sh
     - ENVIRONMENT=prod deploystatic
-    - kubectl config use-context prod
     - 'kubectl patch -n=production deployment/europa --patch "{\"spec\": {\"template\": {\"spec\": {\"initContainers\": [{\"name\": \"migrate\",\"image\": \"olympus.azurecr.io/europa:$CI_COMMIT_TAG\"}]}}}}"'
     - kubectl set image -n=production deployment/europa europa=olympus.azurecr.io/europa:$CI_COMMIT_TAG
   when: manual
