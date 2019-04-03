@@ -103,6 +103,7 @@ class SecurityCredential(models.Model):
 
     def save(self, *args, **kwargs):
         self.storage_key = self.get_storage_key(exposed_request)
+        error_message = "File not saved, please check a file is selected and all fields are populated"
 
         if self.storage_key == "Service unavailable":
             messages.set_level(exposed_request, messages.ERROR)
@@ -110,8 +111,8 @@ class SecurityCredential(models.Model):
 
         elif not self.storage_key:
             messages.set_level(exposed_request, messages.ERROR)
-            messages.error(exposed_request, "Error generating storage key! The file has not been saved.")
-            self.storage_key = "Error generating storage key. File not saved"
+            messages.error(exposed_request, error_message)
+            self.storage_key = error_message
 
         super().save(*args, **kwargs)
 
