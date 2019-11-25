@@ -106,23 +106,15 @@ STATIC_URL = env_var('STATIC_URL', '/static/')
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
-default = {
-    'ENGINE': env_var('DB_ENGINE', 'django.db.backends.postgresql'),
-    'NAME': env_var('DB_NAME', 'europa'),
-    'USER': env_var('DB_USER', 'europa'),
-    'PASSWORD': env_var('DB_PASSWORD', 'enrgn3478ty'),
-    'HOST': env_var('DB_HOST', 'localhost'),
-    'PORT': env_var('DB_PORT', '5432'),
-}
-
-test = {
-    'ENGINE': 'django.db.backends.sqlite3',
-    'NAME': ':memory:',
-}
-
-
 DATABASES = {
-    'default': test if env_var('TESTING') else default
+    'default': {
+        'ENGINE': env_var('DB_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': env_var('DB_NAME', 'europa'),
+        'USER': env_var('DB_USER', 'europa'),
+        'PASSWORD': env_var('DB_PASSWORD'),
+        'HOST': env_var('DB_HOST', 'localhost'),
+        'PORT': env_var('DB_PORT', '5432'),
+    }
 }
 
 
