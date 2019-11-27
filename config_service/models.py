@@ -125,11 +125,13 @@ class SecurityService(models.Model):
     RSA_SECURITY = 0
     OPEN_AUTH_SECURITY = 1
     OAUTH_SECURITY = 2
+    PGP_SECURITY = 3
 
     SECURITY_TYPE_CHOICES = (
         (RSA_SECURITY, "RSA"),
         (OPEN_AUTH_SECURITY, "Open Auth (No Authentication)"),
         (OAUTH_SECURITY, "OAuth"),
+        (PGP_SECURITY, "PGP"),
     )
 
     INBOUND_REQUEST = "INBOUND"
