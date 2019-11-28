@@ -64,6 +64,7 @@ def prepare_data(request):
     storage_key = create_hash(
         data['credential_type'],
         data['service_type'],
+        data['handler_type'],
         data['merchant_id']
     )
     key_to_store = data['file']
