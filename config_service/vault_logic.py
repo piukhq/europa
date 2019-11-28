@@ -7,10 +7,10 @@ from sentry_sdk import capture_exception
 import europa.settings as settings
 
 
-def create_hash(credential_type, service_type, merchant_id):
+def create_hash(credential_type, service_type, handler_type, merchant_id):
     hashed_storage_key = hashlib.sha256(
-        "{}.{}.{}".format(
-            credential_type, service_type, merchant_id).encode()
+        "{}.{}.{}.{}".format(
+            credential_type, service_type, handler_type, merchant_id).encode()
     )
     return hashed_storage_key.hexdigest()
 
