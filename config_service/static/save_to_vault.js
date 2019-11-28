@@ -19,6 +19,9 @@
             var table = table_row.parents("tbody");
             var service_type = table[1].children[0].children[1].children[0].value;
 
+            // Get Handler type value
+            var handler_type = $("#id_handler_type").val();
+
             // Get credential type
             var credential_type = table_row.children(".field-type").children().val();
 
@@ -26,19 +29,19 @@
             var file_input = table_row.children(".field-key_to_store").children();
             var source_file = file_input.get(0).files[0];
 
-            read_file(source_file, credential_type, service_type);
+            read_file(source_file, credential_type, service_type, handler_type);
 
         });
 
-        function read_file(source_file, credential_type, service_type){
+        function read_file(source_file, credential_type, service_type, handler_type){
             var reader = new FileReader();
             reader.onload = function(e){
-                build_dict(reader.result, credential_type, service_type)
+                build_dict(reader.result, credential_type, service_type, handler_type)
             };
             reader.readAsText(source_file);
         }
 
-        function build_dict(file_contents, credential_type, service_type){
+        function build_dict(file_contents, credential_type, service_type, handler_type){
 
             function getCookie(name) {
                 var cookieValue = null;
@@ -59,6 +62,7 @@
             form_data['csrfmiddlewaretoken'] = getCookie('csrftoken');
             form_data['merchant_id'] = $('#id_merchant_id').val();
             form_data['service_type'] = service_type;
+            form_data['handler_type'] = handler_type;
             form_data['credential_type'] = credential_type;
             form_data['file'] = file_contents;
 
