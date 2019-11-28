@@ -3,6 +3,8 @@ import mock
 from config_service import vault_logic
 from django.test import TestCase, Client
 
+from config_service.models import Configuration
+
 
 class TestVaultFunctions(TestCase):
     def setUp(self):
@@ -11,13 +13,15 @@ class TestVaultFunctions(TestCase):
             'csrfmiddlewaretoken': 'test_token',
             'merchant_id': 'test',
             'service_type': 'test_service',
+            'handler_type': Configuration.JOIN_HANDLER,
             'credential_type': 'test_credential',
             'file': 'test_file'
         }
         hashed_storage_key = hashlib.sha256(
-            "{}.{}.{}".format(
+            "{}.{}.{}.{}".format(
                 self.data['credential_type'],
                 self.data['service_type'],
+                self.data['handler_type'],
                 self.data['merchant_id']
             ).encode())
         self.storage_key = hashed_storage_key.hexdigest()
@@ -55,6 +59,7 @@ class TestVaultFunctions(TestCase):
         response = vault_logic.create_hash(
             credential_type=self.data['credential_type'],
             service_type=self.data['service_type'],
+            handler_type=self.data['handler_type'],
             merchant_id=self.data['merchant_id']
         )
         self.assertEqual(self.storage_key, response)
