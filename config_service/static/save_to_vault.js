@@ -29,7 +29,13 @@
             var file_input = table_row.children(".field-key_to_store").children();
             var source_file = file_input.get(0).files[0];
 
+            console.log("service_type: " + service_type);
+            console.log("handler_type: " + handler_type);
+            console.log("credential_type: " + credential_type);
+            console.log("source_file: " + source_file);
+            console.log("reading file....");
             read_file(source_file, credential_type, service_type, handler_type);
+            console.log("file read successfully.");
 
         });
 
@@ -65,23 +71,8 @@
             form_data['handler_type'] = handler_type;
             form_data['credential_type'] = credential_type;
             form_data['file'] = file_contents;
-
-            function validate_dict_values(form_data){
-                var x = Boolean;
-
-                for(var key in form_data){
-                    if(typeof form_data[key] !== 'string' || Object.keys(form_data).length !== 5) {
-                        return false;
-                    }else{
-                        x = true;
-                    }
-                }
-                return x;
-            }
-
-            if(validate_dict_values(form_data)){
-                send_data(form_data);
-            }
+            
+            send_data(form_data);
         }
 
         function send_data(form_data){
