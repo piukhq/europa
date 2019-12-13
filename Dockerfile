@@ -1,11 +1,13 @@
-FROM python:3.6
+FROM python:3.6-alpine
 
 WORKDIR /app
 ADD . .
 
-ENV PIP_NO_BINARY=psycopg2
+RUN apk add --no-cache --virtual build \
+      build-base && \
+    apk add --no-cache postgresql-dev && \
+    pip install pipenv gunicorn && \
+    pipenv install --system --deploy --ignore-pipfile && \
+    apk del --no-cache build
 
-RUN pip install pipenv && \
-    pipenv install --system --deploy && \
-    pip install uwsgi
-
+CMD ["/usr/local/bin/gunicorn", "-c", "gunicorn.py", "europa.wsgi"]
