@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('config_service', '0004_auto_20190212_1713'),
+        ("config_service", "0004_auto_20190212_1713"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='securityservice',
-            name='type',
-            field=models.IntegerField(choices=[(0, 'RSA'), (1, 'Open Auth (No Authentication)'), (2, 'OAuth'), (3, 'PGP')]),
+            model_name="securityservice",
+            name="type",
+            field=models.IntegerField(
+                choices=[(0, "RSA"), (1, "Open Auth (No Authentication)"), (2, "OAuth"), (3, "PGP")]
+            ),
         ),
     ]

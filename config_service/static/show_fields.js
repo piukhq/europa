@@ -1,10 +1,5 @@
-(function($) {
-    $(document).ready(function() {
-
-        if (!$) {
-            $ = django.jQuery;
-        }
-
+window.addEventListener("load", function () {
+    (function ($) {
         var type_field = $('#id_securityservice_set-0-securitycredential_set-0-type');
         var toggle_elements = $(
             '.key-to-store,' +
@@ -28,10 +23,10 @@
         toggleElements(type_field.val());
 
         // show/hide on change
-        type_field.change(function() {
+        type_field.change(function () {
             toggleElements($(this).val());
         });
 
         type_field.trigger('change');
-    })
-})(django.jQuery);
+    })(django.jQuery);
+});

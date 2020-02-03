@@ -1,17 +1,11 @@
-(function($) {
-    $(document).ready(function() {
-
-        if (!$) {
-            $ = django.jQuery;
-        }
-
+window.addEventListener("load", function () {
+    (function ($) {
         var form_data = {};
 
-        $('.button-primary.upload_to_vault').click(function() {
-
+        $('.button-primary.upload_to_vault').click(function () {
             /* The 'upload to vault' button is rendered dynamically depending on how many security credentials there are
          * so here we grab the values relative to the button that's clicked */
-            $(this).css('background', '#428bca');
+            $(this).css('background-color', '#EEAA33');
             // Clicked button
             var table_row = $(this).parents("tr.djn-tr.form-row");
 
@@ -39,15 +33,15 @@
 
         });
 
-        function read_file(source_file, credential_type, service_type, handler_type){
+        function read_file(source_file, credential_type, service_type, handler_type) {
             var reader = new FileReader();
-            reader.onload = function(e){
+            reader.onload = function (e) {
                 build_dict(reader.result, credential_type, service_type, handler_type)
             };
             reader.readAsText(source_file);
         }
 
-        function build_dict(file_contents, credential_type, service_type, handler_type){
+        function build_dict(file_contents, credential_type, service_type, handler_type) {
 
             function getCookie(name) {
                 var cookieValue = null;
@@ -71,11 +65,11 @@
             form_data['handler_type'] = handler_type;
             form_data['credential_type'] = credential_type;
             form_data['file'] = file_contents;
-            
+
             send_data(form_data);
         }
 
-        function send_data(form_data){
+        function send_data(form_data) {
             $.ajax({
                 type: 'POST',
                 url: '/config_service/form_data/',
@@ -83,7 +77,5 @@
                 data: form_data
             });
         }
-
-    });
-
-})(django.jQuery);
+    })(django.jQuery);
+});

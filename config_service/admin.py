@@ -13,7 +13,7 @@ admin.site.register(CustomUser, UserAdmin)
 class SecurityCredentialForm(forms.ModelForm):
     class Meta:
         model = SecurityCredential
-        fields = '__all__'
+        fields = "__all__"
 
     key_to_store = forms.FileField()
 
@@ -22,44 +22,42 @@ class SecurityCredentialInline(NestedTabularInline):
     extra = 1
     model = SecurityCredential
     formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+        models.TextField: {"widget": Textarea(attrs={"rows": 1, "cols": 40})},
     }
-    readonly_fields = ('storage_key', 'upload_button')
+    readonly_fields = ("storage_key", "upload_button")
 
     def upload_button(self, obj):
-        return format_html(
-            "<input class='button-primary upload_to_vault' value='Upload to Vault' />"
-        )
+        return format_html("<input type='button' class='button-primary upload_to_vault' value='Upload to Vault' />")
 
     upload_button.allow_tags = True
 
     class Media:
-        js = ('save_to_vault.js', 'show_fields.js')
+        js = ("save_to_vault.js", "show_fields.js")
 
 
 class SecurityServiceInline(NestedTabularInline):
     extra = 1
     model = SecurityService
     formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+        models.TextField: {"widget": Textarea(attrs={"rows": 1, "cols": 40})},
     }
     inlines = [SecurityCredentialInline]
 
 
 @admin.register(Configuration)
 class ConfigurationAdmin(NestedModelAdmin):
-    list_filter = ('merchant_id', 'handler_type')
-    list_display = ('merchant_id', 'handler_type')
+    list_filter = ("merchant_id", "handler_type")
+    list_display = ("merchant_id", "handler_type")
     inlines = (SecurityServiceInline,)
 
 
 @admin.register(SecurityCredential)
 class SecurityCredentialAdmin(admin.ModelAdmin):
     form = SecurityCredentialForm
-    list_display = ('type',)
-    readonly_fields = ('storage_key',)
+    list_display = ("type",)
+    readonly_fields = ("storage_key",)
 
 
 @admin.register(SecurityService)
 class SecurityServiceAdmin(admin.ModelAdmin):
-    list_display = ('type',)
+    list_display = ("type",)

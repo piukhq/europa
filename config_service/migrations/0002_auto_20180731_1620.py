@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('config_service', '0001_initial'),
+        ("config_service", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='configuration',
-            name='handler_type',
-            field=models.IntegerField(choices=[(0, 'Update'), (1, 'Join'), (2, 'Validate'), (3, 'Transaction Matching')]),
+            model_name="configuration",
+            name="handler_type",
+            field=models.IntegerField(
+                choices=[(0, "Update"), (1, "Join"), (2, "Validate"), (3, "Transaction Matching")]
+            ),
         ),
     ]

@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from sentry_sdk import capture_exception
 
 from config_service.vault_logic import connect_to_vault
+from config_service.null_storage import NullStorage
 
 exposed_request = None
 
@@ -49,20 +50,20 @@ class Configuration(models.Model):
         (INFO_LOG_LEVEL, "Info"),
         (WARNING_LOG_LEVEL, "Warning"),
         (ERROR_LOG_LEVEL, "Error"),
-        (CRITICAL_LOG_LEVEL, "Critical")
+        (CRITICAL_LOG_LEVEL, "Critical"),
     )
 
-    merchant_id = models.CharField(verbose_name='Merchant Slug', max_length=64)
+    merchant_id = models.CharField(verbose_name="Merchant Slug", max_length=64)
     merchant_url = models.CharField(max_length=256)
     handler_type = models.IntegerField(choices=HANDLER_TYPE_CHOICES)
     integration_service = models.IntegerField(choices=INTEGRATION_CHOICES)
     callback_url = models.CharField(max_length=256, blank=True, null=True)
     retry_limit = models.IntegerField(default=0)
     log_level = models.IntegerField(choices=LOG_LEVEL_CHOICES, default=DEBUG_LOG_LEVEL)
-    country = models.CharField(max_length=128, default='GB')
+    country = models.CharField(max_length=128, default="GB")
 
     class Meta:
-        unique_together = ('merchant_id', 'handler_type')
+        unique_together = ("merchant_id", "handler_type")
 
 
 class SecurityCredential(models.Model):
@@ -75,16 +76,16 @@ class SecurityCredential(models.Model):
         (BINK_PRIVATE_KEY, "Bink private key"),
         (BINK_PUBLIC_KEY, "Bink public key"),
         (MERCHANT_PUBLIC_KEY, "Merchant public key"),
-        (COMPOUND_KEY, "Compound key")
+        (COMPOUND_KEY, "Compound key"),
     )
 
     type = models.CharField(max_length=32, choices=SECURITY_CRED_TYPE_CHOICES)
-    key_to_store = models.FileField(upload_to='media/', blank=True)
+    key_to_store = models.FileField(blank=True, storage=NullStorage())
     storage_key = models.TextField(blank=True)
-    security_service = models.ForeignKey('SecurityService', on_delete=models.CASCADE)
+    security_service = models.ForeignKey("SecurityService", on_delete=models.CASCADE)
 
     def __str__(self):
-        return '{}'.format(self.type)
+        return "{}".format(self.type)
 
     def delete(self, *args, **kwargs):
 
@@ -92,12 +93,12 @@ class SecurityCredential(models.Model):
 
         if isinstance(self.storage_key, str):
             try:
-                client.delete('secret/data/{}'.format(self.storage_key.split(' ', 1)[0]))
+                client.delete("secret/data/{}".format(self.storage_key.split(" ", 1)[0]))
             except Exception as e:
                 capture_exception(e)
                 messages.set_level(exposed_request, messages.ERROR)
                 messages.error(exposed_request, "Can not connect to the vault! The item has not been deleted.")
-                return Response(status=503, data='Service unavailable')
+                return Response(status=503, data="Service unavailable")
 
         super(SecurityCredential, self).delete(*args, **kwargs)
 
@@ -118,7 +119,7 @@ class SecurityCredential(models.Model):
 
     @staticmethod
     def get_storage_key(request):
-        return request.session.get('storage_key')
+        return request.session.get("storage_key")
 
 
 class SecurityService(models.Model):
@@ -137,17 +138,14 @@ class SecurityService(models.Model):
     INBOUND_REQUEST = "INBOUND"
     OUTBOUND_REQUEST = "OUTBOUND"
 
-    REQUEST_TYPE_CHOICES = (
-        (INBOUND_REQUEST, "Inbound"),
-        (OUTBOUND_REQUEST, "Outbound")
-    )
+    REQUEST_TYPE_CHOICES = ((INBOUND_REQUEST, "Inbound"), (OUTBOUND_REQUEST, "Outbound"))
 
     request_type = models.CharField(max_length=16, choices=REQUEST_TYPE_CHOICES)
     type = models.IntegerField(choices=SECURITY_TYPE_CHOICES)
     configuration = models.ForeignKey(Configuration, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('request_type', 'configuration')
+        unique_together = ("request_type", "configuration")
 
     def __str__(self):
-        return '{} {}'.format(self.type, self.request_type)
+        return "{} {}".format(self.type, self.request_type)
