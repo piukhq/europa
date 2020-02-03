@@ -28,7 +28,7 @@ class SecurityCredentialInline(NestedTabularInline):
 
     def upload_button(self, obj):
         return format_html(
-            "<input class='button-primary upload_to_vault' value='Upload to Vault' />"
+            "<input type='button' class='button-primary upload_to_vault' value='Upload to Vault' />"
         )
 
     upload_button.allow_tags = True

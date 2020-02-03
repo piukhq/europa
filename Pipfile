@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 djangorestframework = "*"
 pyjwt = "*"
-raven = "*"
 django-nested-admin = "*"
 requests = "*"
 hvac = "*"
@@ -21,6 +20,8 @@ pytest = "*"
 pytest-django = "*"
 pytest-cov = "*"
 gunicorn = "*"
+black = "==19.10b0"
+flake8 = "*"
 
 [requires]
 python_version = "3.6"
