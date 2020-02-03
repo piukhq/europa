@@ -16,38 +16,38 @@ class ConfigurationDetail(APIView):
     serializer_class = ConfigurationSerializer
 
     def get(self, request):
-        merchant_id = request.GET.get('merchant_id')
-        handler_type = request.GET.get('handler_type')
+        merchant_id = request.GET.get("merchant_id")
+        handler_type = request.GET.get("handler_type")
 
         try:
             config_queryset = Configuration.objects.filter(merchant_id=merchant_id, handler_type=handler_type)
             config = config_queryset.values()[0]
         except IndexError:
-            return JsonResponse({
-                'message': 'configuration for {} using the given handler does not exist.'
-                .format(merchant_id)
-            }, status=400)
+            return JsonResponse(
+                {"message": "configuration for {} using the given handler does not exist.".format(merchant_id)},
+                status=400,
+            )
 
         inbound_security_service = config_queryset[0].securityservice_set.get(request_type="INBOUND")
         outbound_security_service = config_queryset[0].securityservice_set.get(request_type="OUTBOUND")
 
         inbound_credentials = {
-            'service': inbound_security_service.type,
-            'credentials': [{
-                'credential_type': item.type,
-                'storage_key': item.storage_key}
-                for item in inbound_security_service.securitycredential_set.all()]
+            "service": inbound_security_service.type,
+            "credentials": [
+                {"credential_type": item.type, "storage_key": item.storage_key}
+                for item in inbound_security_service.securitycredential_set.all()
+            ],
         }
 
         outbound_credentials = {
-            'service': outbound_security_service.type,
-            'credentials': [{
-                'credential_type': item.type,
-                'storage_key': item.storage_key}
-                for item in outbound_security_service.securitycredential_set.all()]
+            "service": outbound_security_service.type,
+            "credentials": [
+                {"credential_type": item.type, "storage_key": item.storage_key}
+                for item in outbound_security_service.securitycredential_set.all()
+            ],
         }
 
-        config['security_credentials'] = {'inbound': inbound_credentials, 'outbound': outbound_credentials}
+        config["security_credentials"] = {"inbound": inbound_credentials, "outbound": outbound_credentials}
 
         return JsonResponse(config, status=200)
 
@@ -59,15 +59,10 @@ def prepare_data(request):
         StorageKeySchema(data)
     except MultipleInvalid as e:
         capture_exception(e.error_message)
-        return JsonResponse({'error_message': e.error_message})
+        return JsonResponse({"error_message": e.error_message})
 
-    storage_key = create_hash(
-        data['credential_type'],
-        data['service_type'],
-        data['handler_type'],
-        data['merchant_id']
-    )
-    key_to_store = data['file']
+    storage_key = create_hash(data["credential_type"], data["service_type"], data["handler_type"], data["merchant_id"])
+    key_to_store = data["file"]
 
     key_to_save = format_key(key_to_store)
     vault = upload_to_vault(key_to_save, storage_key)
