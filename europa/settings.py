@@ -30,15 +30,7 @@ SECRET_KEY = "6d#dcrvly@mj0u5nyis&4h0+fzysma86a&fye%#$_co5bd*d$*"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    "0.0.0.0",
-    "127.0.0.1",
-    "europa",
-    ".bink-dev.com",
-    ".bink-sandbox.com",
-    ".bink-staging.com",
-    ".bink.com",
-]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
