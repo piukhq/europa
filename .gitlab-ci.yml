@@ -20,6 +20,8 @@ tests:
     - export DB_NAME=postgres
     - export DB_HOST=$POSTGRES_PORT_5432_TCP_ADDR
     - pipenv run pytest -v --cov-report term-missing --cov=.
+  variables:
+    - POSTGRES_HOST_AUTH_METHOD: trust
   services:
     - postgres:latest
 
