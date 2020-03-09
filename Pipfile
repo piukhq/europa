@@ -4,23 +4,24 @@ url = "https://pypi.python.org/simple"
 name = "pypi"
 
 [packages]
-django = "*"
 djangorestframework = "*"
 pyjwt = "*"
-pytest = "*"
-pytest-django = "*"
-pytest-cov = "*"
-raven = "*"
 django-nested-admin = "*"
 requests = "*"
 hvac = "*"
 sentry-sdk = "*"
 voluptuous = "*"
-mock = "*"
-"psycopg2" = "*"
-ddtrace = "*"
+psycopg2 = "*"
+django = "==2.2.*"
 
 [dev-packages]
+mock = "*"
+pytest = "*"
+pytest-django = "*"
+pytest-cov = "*"
+gunicorn = "*"
+black = "==19.10b0"
+flake8 = "*"
 
 [requires]
 python_version = "3.6"
