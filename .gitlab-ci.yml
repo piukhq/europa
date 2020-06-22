@@ -6,14 +6,16 @@ stages:
 
 complexity:
   stage: tests
-  image: olympus.azurecr.io/python:3.6
+  image: binkhq/python:3.8
   script:
+    - pip install xenon
     - xenon --max-average A --max-modules B --max-absolute B .
 
 tests:
   stage: tests
-  image: olympus.azurecr.io/python:3.6
+  image: binkhq/python:3.8
   script:
+    - pip install pipenv==2018.11.26
     - pipenv install --dev
     - export TESTING=true
     - export DB_USER=postgres
@@ -27,8 +29,9 @@ tests:
 
 style:
   stage: tests
-  image: olympus.azurecr.io/python:3.6
+  image: binkhq/python:3.8
   script:
+    - pip install flake8
     - flake8
 
 build-develop:
