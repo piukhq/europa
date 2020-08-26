@@ -1,9 +1,13 @@
+from django.conf import settings
+from django.db import connections, DEFAULT_DB_ALIAS
+from django.db.utils import OperationalError
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from sentry_sdk import capture_exception
 from voluptuous import MultipleInvalid
 
+import requests
 from config_service.models import Configuration
 from config_service.schemas import StorageKeySchema
 from config_service.serializers import ConfigurationSerializer
@@ -76,4 +80,24 @@ class HealthCheck(APIView):
     permission_classes = []
 
     def get(self, request):
-        return Response()
+        return Response(status=204)
+
+
+class ReadyzCheck(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        # Check it can get secrets
+        resp = requests.get(settings.VAULT_URL + '/healthz')
+        if resp.status_code != 200:
+            return JsonResponse({"error": f"Cannot get secrets from {settings.VAULT_URL}"}, status=500)
+
+        # Check DB
+        db_conn = connections[DEFAULT_DB_ALIAS]
+        try:
+            db_conn.cursor()
+        except OperationalError as err:
+            return JsonResponse({"error": f"Cannot connect to database: {err}"}, status=500)
+
+        return Response(status=204)

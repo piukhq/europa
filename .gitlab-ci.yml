@@ -2,7 +2,6 @@ stages:
   - tests
   - build
   - tagging
-  - statics
 
 complexity:
   stage: tests
@@ -56,16 +55,6 @@ tag-develop:
   only:
     - develop
 
-statics-dev:
-  stage: statics
-  image: binkops.azurecr.io/kubedeployer:latest
-  environment: dev
-  script:
-    - bash collectstatic.sh
-    - ENVIRONMENT=dev deploystatic
-  only:
-    - develop
-
 build-master:
   stage: build
   image: docker:latest
@@ -88,16 +77,6 @@ tag-staging:
   only:
     - tags
 
-statics-staging:
-  stage: statics
-  image: binkops.azurecr.io/kubedeployer:latest
-  environment: staging
-  script:
-    - bash collectstatic.sh
-    - ENVIRONMENT=staging deploystatic
-  only:
-    - tags
-
 tag-prod:
   stage: tagging
   image: binkops.azurecr.io/tagbot:latest
@@ -105,15 +84,5 @@ tag-prod:
   script:
     - tagbot --username "$CI_REGISTRY_USER" --password "$CI_REGISTRY_PASSWORD" --source "$CI_REGISTRY/europa:$CI_COMMIT_TAG" --tag "prod-$CI_COMMIT_TAG"
   when: manual
-  only:
-    - tags
-
-statics-prod:
-  stage: statics
-  image: binkops.azurecr.io/kubedeployer:latest
-  environment: prod
-  script:
-    - bash collectstatic.sh
-    - ENVIRONMENT=prod deploystatic
   only:
     - tags
