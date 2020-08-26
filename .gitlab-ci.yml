@@ -2,18 +2,19 @@ stages:
   - tests
   - build
   - tagging
-  - statics
 
 complexity:
   stage: tests
-  image: olympus.azurecr.io/python:3.6
+  image: binkhq/python:3.8
   script:
+    - pip install xenon
     - xenon --max-average A --max-modules B --max-absolute B .
 
 tests:
   stage: tests
-  image: olympus.azurecr.io/python:3.6
+  image: binkhq/python:3.8
   script:
+    - pip install pipenv==2018.11.26
     - pipenv install --dev
     - export TESTING=true
     - export DB_USER=postgres
@@ -27,8 +28,9 @@ tests:
 
 style:
   stage: tests
-  image: olympus.azurecr.io/python:3.6
+  image: binkhq/python:3.8
   script:
+    - pip install flake8
     - flake8
 
 build-develop:
@@ -50,16 +52,6 @@ tag-develop:
   environment: dev
   script:
     - tagbot --username "$CI_REGISTRY_USER" --password "$CI_REGISTRY_PASSWORD" --source "$CI_REGISTRY/europa:latest" --tag "develop-$CI_COMMIT_SHORT_SHA"
-  only:
-    - develop
-
-statics-dev:
-  stage: statics
-  image: binkops.azurecr.io/kubedeployer:latest
-  environment: dev
-  script:
-    - bash collectstatic.sh
-    - ENVIRONMENT=dev deploystatic
   only:
     - develop
 
@@ -85,16 +77,6 @@ tag-staging:
   only:
     - tags
 
-statics-staging:
-  stage: statics
-  image: binkops.azurecr.io/kubedeployer:latest
-  environment: staging
-  script:
-    - bash collectstatic.sh
-    - ENVIRONMENT=staging deploystatic
-  only:
-    - tags
-
 tag-prod:
   stage: tagging
   image: binkops.azurecr.io/tagbot:latest
@@ -102,15 +84,5 @@ tag-prod:
   script:
     - tagbot --username "$CI_REGISTRY_USER" --password "$CI_REGISTRY_PASSWORD" --source "$CI_REGISTRY/europa:$CI_COMMIT_TAG" --tag "prod-$CI_COMMIT_TAG"
   when: manual
-  only:
-    - tags
-
-statics-prod:
-  stage: statics
-  image: binkops.azurecr.io/kubedeployer:latest
-  environment: prod
-  script:
-    - bash collectstatic.sh
-    - ENVIRONMENT=prod deploystatic
   only:
     - tags

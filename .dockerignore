@@ -1,0 +1,10 @@
+.dockerignore
+.git
+.gitignore
+.gitlab-ci.yml
+Dockerfile
+README.md
+collectstatic.sh
+tox.ini
+pytest.ini
+.coveragerc
