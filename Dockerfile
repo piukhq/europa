@@ -1,13 +1,15 @@
-FROM python:3.6-alpine
+FROM binkhq/python:3.8
 
 WORKDIR /app
 ADD . .
 
-RUN apk add --no-cache --virtual build \
-      build-base && \
-    apk add --no-cache postgresql-dev && \
-    pip install pipenv gunicorn && \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    pip install --no-cache-dir pipenv==2018.11.26 gunicorn && \
     pipenv install --system --deploy --ignore-pipfile && \
-    apk del --no-cache build
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists
 
-CMD ["/usr/local/bin/gunicorn", "-c", "gunicorn.py", "europa.wsgi"]
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["gunicorn", "--workers=2", "--threads=2", "--error-logfile=-", \
+                 "--access-logfile=-", "--bind=0.0.0.0:9000", "europa.wsgi:application" ]
