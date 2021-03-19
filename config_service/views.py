@@ -7,15 +7,13 @@ from rest_framework.views import APIView
 from sentry_sdk import capture_exception
 from voluptuous import MultipleInvalid
 
-import requests
 from config_service.models import Configuration
 from config_service.schemas import StorageKeySchema
 from config_service.serializers import ConfigurationSerializer
-from config_service.vault_logic import create_hash, store_key_in_session, format_key, upload_to_vault
+from config_service.vault_logic import create_hash, store_key_in_session, format_key, upload_to_vault, get_secret
 
 
 class ConfigurationDetail(APIView):
-    # authentication_classes = (ServiceAuthentication, )
     queryset = Configuration.objects.all()
     serializer_class = ConfigurationSerializer
 
@@ -89,7 +87,7 @@ class ReadyzCheck(APIView):
 
     def get(self, request):
         # Check it can get secrets
-        resp = requests.get(settings.VAULT_URL + '/healthz')
+        resp = get_secret("fakicorp-readyz")
         if resp.status_code != 200:
             return JsonResponse({"error": f"Cannot get secrets from {settings.VAULT_URL}"}, status=500)
 
