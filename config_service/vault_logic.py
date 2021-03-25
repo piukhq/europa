@@ -35,7 +35,7 @@ def format_key(key_to_store):
 def upload_to_vault(key_to_store, storage_key):
     client = connect_to_vault()
 
-    try:  # Save to vault
+    try:  # Save to vault. storage_key is the secret name
         client.set_secret(storage_key, key_to_store)
         return True
 
@@ -52,6 +52,18 @@ def get_secret(self, secret_name: str, original_name: str):
 
     try:
         return json.loads(client.get_secret(secret_name).value)
+    except ResourceNotFoundError:
+        return None
+
+
+def delete_secret(secret_name: str):
+    client = connect_to_vault()
+
+    try:
+        poller = client.begin_delete_secret(secret_name)
+        deleted_secret = poller.result()
+        poller.wait()
+        return deleted_secret
     except ResourceNotFoundError:
         return None
 
