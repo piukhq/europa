@@ -4,7 +4,7 @@ from django.db import models
 from rest_framework.response import Response
 from sentry_sdk import capture_exception
 
-from config_service.vault_logic import connect_to_vault
+from config_service.vault_logic import delete_secret
 from config_service.null_storage import NullStorage
 
 exposed_request = None
@@ -88,17 +88,17 @@ class SecurityCredential(models.Model):
         return "{}".format(self.type)
 
     def delete(self, *args, **kwargs):
-
-        client = connect_to_vault()
-
         if isinstance(self.storage_key, str):
             try:
-                client.delete("secret/data/{}".format(self.storage_key.split(" ", 1)[0]))
+                # storage_key is the secret name
+                deleted_secret = delete_secret(self.storage_key)
+                messages.set_level(exposed_request, messages.INFO)
+                messages.info(exposed_request, f"Secret deleted: {deleted_secret.name}")
             except Exception as e:
                 capture_exception(e)
                 messages.set_level(exposed_request, messages.ERROR)
-                messages.error(exposed_request, "Can not connect to the vault! The item has not been deleted.")
-                return Response(status=503, data="Service unavailable")
+                messages.error(exposed_request, "Unable to delete the secret.")
+                return Response(status=503, data="Resource not found")
 
         super(SecurityCredential, self).delete(*args, **kwargs)
 

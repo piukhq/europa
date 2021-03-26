@@ -1,5 +1,7 @@
 import hashlib
 import mock
+from django.test.client import RequestFactory
+
 from config_service import vault_logic
 from django.test import TestCase, Client
 
@@ -65,11 +67,16 @@ class TestVaultFunctions(TestCase):
         )
         self.assertEqual(self.storage_key, response)
 
+    def test_store_in_session_returns_unavailable(self):
+        req = RequestFactory()
+        req.session = self.client.session
+        vault_logic.store_key_in_session(req, None, "key1")
+        self.assertEqual(req.session["storage_key"], "Service unavailable")
+
     @mock.patch("config_service.views.upload_to_vault")
-    @mock.patch("config_service.views.format_key")
     @mock.patch("config_service.views.create_hash")
     def test_store_key_in_session_when_vault_status_is_201(
-        self, mock_create_hash, mock_format_key, mock_upload_to_vault
+        self, mock_create_hash, mock_upload_to_vault
     ):
         mock_create_hash.return_value = self.storage_key
         mock_upload_to_vault.return_value = True
@@ -92,10 +99,14 @@ class TestVaultFunctions(TestCase):
         self.assertTrue(mock_connect_to_vault.called)
         self.assertEqual(response, True)
 
-    def test_upload_to_vault_no_connection(self):
+    @mock.patch("config_service.vault_logic.connect_to_vault")
+    def test_upload_to_vault_no_connection(self, mock_connect_to_vault):
+        mock_connect_to_vault.return_value = None
         response = vault_logic.upload_to_vault("test_key", self.storage_key)
         self.assertEqual(response, False)
 
-    def test_upload_to_vault_compound_key_no_connection(self):
+    @mock.patch("config_service.vault_logic.connect_to_vault")
+    def test_upload_to_vault_compound_key_no_connection(self, mock_connect_to_vault):
+        mock_connect_to_vault.return_value = None
         response = vault_logic.upload_to_vault("{test: test}", self.storage_key)
         self.assertEqual(response, False)

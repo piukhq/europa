@@ -8,11 +8,12 @@ djangorestframework = "*"
 pyjwt = "*"
 django-nested-admin = "*"
 requests = "*"
-hvac = "*"
 sentry-sdk = "*"
 voluptuous = "*"
 psycopg2-binary = "*"
 django = "==2.2.*"
+azure-identity = "*"
+azure-keyvault-secrets = "*"
 
 [dev-packages]
 mock = "*"
