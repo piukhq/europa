@@ -1,6 +1,5 @@
 import ast
 import hashlib
-import json
 
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
@@ -47,11 +46,11 @@ def upload_to_vault(key_to_store, storage_key):
         return False
 
 
-def get_secret(self, secret_name: str, original_name: str):
+def get_secret(self, secret_name: str):
     client = connect_to_vault()
 
     try:
-        return json.loads(client.get_secret(secret_name).value)
+        return client.get_secret(secret_name).value
     except ResourceNotFoundError:
         return None
 
