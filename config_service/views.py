@@ -88,7 +88,7 @@ class ReadyzCheck(APIView):
     def get(self, request):
         # Check it can get secrets
         resp = get_secret("fakicorp-readyz")
-        if resp.status_code != 200:
+        if resp is None:
             return JsonResponse({"error": f"Cannot get secrets from {settings.VAULT_URL}"}, status=500)
 
         # Check DB
