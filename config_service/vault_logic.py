@@ -1,7 +1,9 @@
 import ast
 import hashlib
 
-import hvac
+from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
+from azure.core.exceptions import ServiceRequestError, ResourceNotFoundError, AzureError
 from sentry_sdk import capture_exception
 
 import europa.settings as settings
@@ -32,14 +34,43 @@ def format_key(key_to_store):
 def upload_to_vault(key_to_store, storage_key):
     client = connect_to_vault()
 
-    try:  # Save to vault
-        client.write("secret/data/{}".format(storage_key), data=key_to_store)
+    try:  # Save to vault. storage_key is the secret name
+        client.set_secret(storage_key, key_to_store)
         return True
 
+    except (ServiceRequestError, AzureError) as e:
+        capture_exception(e)
+        return False
     except Exception as e:
         capture_exception(e)
         return False
 
 
+def get_secret(self, secret_name: str):
+    client = connect_to_vault()
+
+    try:
+        return client.get_secret(secret_name).value
+    except ResourceNotFoundError:
+        return None
+
+
+def delete_secret(secret_name: str):
+    client = connect_to_vault()
+
+    try:
+        poller = client.begin_delete_secret(secret_name)
+        deleted_secret = poller.result()
+        poller.wait()
+        return deleted_secret
+    except ResourceNotFoundError:
+        return None
+
+
 def connect_to_vault():
-    return hvac.Client(url=settings.VAULT_URL, token=settings.VAULT_TOKEN)
+    if settings.KEYVAULT_URI is None:
+        raise Exception("Vault Error: settings.KEYVAULT_URI not set")
+
+    kv_credential = DefaultAzureCredential()
+
+    return SecretClient(vault_url=settings.KEYVAULT_URI, credential=kv_credential)

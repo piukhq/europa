@@ -8,6 +8,7 @@ omit = *migrations*
        manage.py
        europa/wsgi.py
        **/apps.py
+       config_service/vault_logic.py
 
 branch = True
 

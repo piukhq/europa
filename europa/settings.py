@@ -139,9 +139,8 @@ USE_L10N = True
 USE_TZ = True
 
 
-# HashiCorp Vault
-VAULT_URL = env_var("VAULT_URL")
-VAULT_TOKEN = env_var("VAULT_TOKEN")
+# Azure key Vault
+KEYVAULT_URI = env_var("KEYVAULT_URI", None)
 
 ENVIRONMENT_ID = env_var("ENVIRONMENT_ID", "dev").lower()
 SENTRY_DSN = env_var("SENTRY_DSN")
