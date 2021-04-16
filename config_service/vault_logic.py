@@ -6,6 +6,7 @@ from azure.core.exceptions import ServiceRequestError, ResourceNotFoundError, Az
 from sentry_sdk import capture_exception
 
 import europa.settings as settings
+from config_service.constants import Security_Credential_Types
 
 
 def create_hash(credential_type, service_type, handler_type, merchant_id):
@@ -23,9 +24,12 @@ def store_key_in_session(request, vault_response, storage_key):
 
 
 def format_key(key_to_store, credential_type):
-    if credential_type == "compound_key":
+    print(credential_type)
+    if credential_type == Security_Credential_Types.COMPOUND_KEY.value[0]:
+        print("inside")
         return key_to_store
     else:
+        print("in else")
         return {"value": key_to_store}
 
 
@@ -33,6 +37,8 @@ def upload_to_vault(key_to_store, storage_key):
     client = connect_to_vault()
 
     try:  # Save to vault. storage_key is the secret name
+        print(storage_key)
+        print(key_to_store)
         client.set_secret(storage_key, key_to_store)
         return True
 
