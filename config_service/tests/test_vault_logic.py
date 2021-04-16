@@ -6,7 +6,7 @@ from config_service import vault_logic
 from django.test import TestCase, Client
 
 from config_service.models import Configuration
-from config_service.constants import SecurityCredentialTypes
+from config_service.credential_types import COMPOUND_KEY
 
 
 class TestVaultFunctions(TestCase):
@@ -91,7 +91,7 @@ class TestVaultFunctions(TestCase):
         self.assertEqual(response, {"value": "test_file"})
 
     def test_get_file_type_is_type_dict(self):
-        response = vault_logic.format_key({"test": "test"}, SecurityCredentialTypes.COMPOUND_KEY.value[0])
+        response = vault_logic.format_key({"test": "test"}, COMPOUND_KEY)
         self.assertEqual(response, {"test": "test"})
 
     @mock.patch("config_service.vault_logic.connect_to_vault")
