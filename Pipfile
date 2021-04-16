@@ -23,6 +23,7 @@ pytest-cov = "*"
 gunicorn = "*"
 black = "==19.10b0"
 flake8 = "*"
+ptpython = "*"
 
 [requires]
 python_version = "3.8"

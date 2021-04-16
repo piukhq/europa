@@ -1,4 +1,3 @@
-import ast
 import hashlib
 
 from azure.identity import DefaultAzureCredential
@@ -23,11 +22,10 @@ def store_key_in_session(request, vault_response, storage_key):
         request.session["storage_key"] = "Service unavailable"
 
 
-def format_key(key_to_store):
-    try:  # if key_to_store is a dict we know we have a compound key
-        isinstance(ast.literal_eval(key_to_store), dict)
-        return ast.literal_eval(key_to_store)
-    except (SyntaxError, ValueError):
+def format_key(key_to_store, credential_type):
+    if credential_type == "compound_key":
+        return key_to_store
+    else:
         return {"value": key_to_store}
 
 
