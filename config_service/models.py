@@ -6,6 +6,7 @@ from sentry_sdk import capture_exception
 
 from config_service.vault_logic import delete_secret
 from config_service.null_storage import NullStorage
+from config_service.credential_types import BINK_PRIVATE_KEY, BINK_PUBLIC_KEY, MERCHANT_PUBLIC_KEY, COMPOUND_KEY
 
 exposed_request = None
 
@@ -67,11 +68,6 @@ class Configuration(models.Model):
 
 
 class SecurityCredential(models.Model):
-    BINK_PRIVATE_KEY = "bink_private_key"
-    BINK_PUBLIC_KEY = "bink_public_key"
-    MERCHANT_PUBLIC_KEY = "merchant_public_key"
-    COMPOUND_KEY = "compound_key"
-
     SECURITY_CRED_TYPE_CHOICES = (
         (BINK_PRIVATE_KEY, "Bink private key"),
         (BINK_PUBLIC_KEY, "Bink public key"),
