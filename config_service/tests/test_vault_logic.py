@@ -86,11 +86,11 @@ class TestVaultFunctions(TestCase):
         self.assertEqual(session["storage_key"], self.storage_key)
 
     def test_get_file_type_is_not_type_dict(self):
-        response = vault_logic.format_key(self.data["file"])
+        response = vault_logic.format_key(self.data["file"], "oauth")
         self.assertEqual(response, {"value": "test_file"})
 
     def test_get_file_type_is_type_dict(self):
-        response = vault_logic.format_key('{"test": "test"}')
+        response = vault_logic.format_key({"test": "test"}, "compound_key")
         self.assertEqual(response, {"test": "test"})
 
     @mock.patch("config_service.vault_logic.connect_to_vault")
