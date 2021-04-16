@@ -6,7 +6,7 @@ from sentry_sdk import capture_exception
 
 from config_service.vault_logic import delete_secret
 from config_service.null_storage import NullStorage
-from config_service.constants import Security_Credential_Types
+from config_service.constants import SecurityCredentialTypes
 
 exposed_request = None
 
@@ -68,7 +68,7 @@ class Configuration(models.Model):
 
 
 class SecurityCredential(models.Model):
-    type = models.CharField(max_length=32, choices=[s.value for s in Security_Credential_Types])
+    type = models.CharField(max_length=32, choices=[s.value for s in SecurityCredentialTypes])
     key_to_store = models.FileField(blank=True, storage=NullStorage())
     storage_key = models.TextField(blank=True)
     security_service = models.ForeignKey("SecurityService", on_delete=models.CASCADE)
