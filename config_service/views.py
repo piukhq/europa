@@ -66,7 +66,7 @@ def prepare_data(request):
     storage_key = create_hash(data["credential_type"], data["service_type"], data["handler_type"], data["merchant_id"])
     key_to_store = data["file"]
 
-    key_to_save = format_key(key_to_store)
+    key_to_save = format_key(key_to_store, data["credential_type"])
     vault = upload_to_vault(key_to_save, storage_key)
     store_key_in_session(request, vault, storage_key)
 
