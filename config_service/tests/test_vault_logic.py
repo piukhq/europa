@@ -76,9 +76,7 @@ class TestVaultFunctions(TestCase):
 
     @mock.patch("config_service.views.upload_to_vault")
     @mock.patch("config_service.views.create_hash")
-    def test_store_key_in_session_when_vault_status_is_201(
-        self, mock_create_hash, mock_upload_to_vault
-    ):
+    def test_store_key_in_session_when_vault_status_is_201(self, mock_create_hash, mock_upload_to_vault):
         mock_create_hash.return_value = self.storage_key
         mock_upload_to_vault.return_value = True
         self.client.post("/config_service/form_data/", self.data)

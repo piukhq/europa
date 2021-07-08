@@ -1,88 +1,98 @@
 stages:
-  - tests
+  - test
   - build
-  - dev
-  - staging
-  - prod
+  - deploy
 
-complexity:
-  stage: tests
-  image: binkhq/python:3.8
+variables:
+  TESTING: "true"
+  DB_USER: postgres
+  DB_NAME: postgres
+  DB_HOST: postgres
+  POSTGRES_HOST_AUTH_METHOD: trust
+
+test:complexity: &test
+  stage: test
+  image: ghcr.io/binkhq/python:3.8
+  before_script:
+    - pipenv install --dev --system --deploy --ignore-pipfile
   script:
-    - pip install xenon
     - xenon --max-average A --max-modules B --max-absolute B .
 
-tests:
-  stage: tests
-  image: binkhq/python:3.8
+test:pytest:
+  <<: *test
   script:
-    - pip install pipenv
-    - pipenv install --dev
-    - export TESTING=true
-    - export DB_USER=postgres
-    - export DB_NAME=postgres
-    - export DB_HOST=$POSTGRES_PORT_5432_TCP_ADDR
     - pipenv run pytest -v --cov-report term-missing --cov=.
-  variables:
-    POSTGRES_HOST_AUTH_METHOD: trust
   services:
     - postgres:latest
 
-style:
-  stage: tests
-  image: binkhq/python:3.8
+test:style:
+  <<: *test
   script:
-    - pip install flake8
     - flake8
+    - black --line-length=120 --check .
 
-dev:
-  stage: dev
+build:develop: &build
+  stage: build
+  needs: ["test:pytest", "test:complexity", "test:style"]
   image: docker:latest
-  environment:
-    name: dev
   services:
     - docker:dind
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - export CTAG=$(echo -n "$CI_PIPELINE_CREATED_AT" | sed s/\://g)
   script:
-    - export CTAG="develop-$(date +%F-%H%M%S)"
-    - docker build --pull -t "$CI_REGISTRY/europa:$CTAG" .
-    - docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$CI_REGISTRY/aqua-scanner:5.0" scan --local "$CI_REGISTRY/europa:$CTAG" --host https://aqua.uksouth.bink.sh:30001/ --user scanner --password $AQUA_PASSWORD --show-negligible --policies Bink --text
-    - docker push "$CI_REGISTRY/europa:$CTAG"
+    - docker build --pull --tag "$CI_REGISTRY/$CI_PROJECT_NAME:$CTAG" .
+    - docker push "$CI_REGISTRY/$CI_PROJECT_NAME:$CTAG"
   only:
     - develop
 
-build-master:
-  stage: build
-  image: docker:latest
-  services:
-    - docker:dind
+build:tag:
+  <<: *build
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-  script:
-    - docker build --pull -t "$CI_REGISTRY/europa:$CI_COMMIT_TAG" .
-    - docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$CI_REGISTRY/aqua-scanner:5.0" scan --local "$CI_REGISTRY/europa:$CI_COMMIT_TAG" --host https://aqua.uksouth.bink.sh:30001/ --user scanner --password $AQUA_PASSWORD --show-negligible --policies Bink --text
-    - docker push "$CI_REGISTRY/europa:$CI_COMMIT_TAG"
+    - export CTAG=$CI_COMMIT_TAG
   only:
     - tags
 
-staging:
-  stage: staging
-  image: binkops.azurecr.io/tagbot:latest
+deploy:dev: &deploy
+  stage: deploy
+  needs: ["build:develop"]
+  image: binkcore.azurecr.io/tagbot:latest
+  environment:
+    name: dev
+  before_script:
+    - export CTAG=$(echo -n "$CI_PIPELINE_CREATED_AT" | sed s/\://g)
+  script:
+    - tagbot
+      --username "$CI_REGISTRY_USER"
+      --password "$CI_REGISTRY_PASSWORD"
+      --source "$CI_REGISTRY/$CI_PROJECT_NAME:$CTAG"
+      --tag "$CI_ENVIRONMENT_NAME-$CTAG"
+    - tagbot
+      --username "$CI_REGISTRY_USER"
+      --password "$CI_REGISTRY_PASSWORD"
+      --source "$CI_REGISTRY/$CI_PROJECT_NAME:$CTAG"
+      --tag "$CI_ENVIRONMENT_NAME"
+  only:
+    - develop
+
+deploy:staging:
+  <<: *deploy
+  needs: ["build:tag"]
   environment:
     name: staging
-  script:
-    - tagbot --username "$CI_REGISTRY_USER" --password "$CI_REGISTRY_PASSWORD" --source "$CI_REGISTRY/europa:$CI_COMMIT_TAG" --tag "staging-$CI_COMMIT_TAG"
+  before_script:
+    - export CTAG=$CI_COMMIT_TAG
   only:
     - tags
 
-prod:
-  stage: prod
-  image: binkops.azurecr.io/tagbot:latest
+deploy:prod:
+  <<: *deploy
+  needs: ["build:tag"]
   environment:
     name: prod
-  script:
-    - tagbot --username "$CI_REGISTRY_USER" --password "$CI_REGISTRY_PASSWORD" --source "$CI_REGISTRY/europa:$CI_COMMIT_TAG" --tag "prod-$CI_COMMIT_TAG"
+  before_script:
+    - export CTAG=$CI_COMMIT_TAG
   when: manual
   only:
     - tags

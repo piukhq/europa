@@ -56,7 +56,7 @@ class Migration(migrations.Migration):
                     "is_active",
                     models.BooleanField(
                         default=True,
-                        help_text="Designates whether this user should be treated as active. Unselect this instead of deleting accounts.",
+                        help_text="Designates whether this user should be treated as active. Unselect this instead of deleting accounts.",  # noqa
                         verbose_name="active",
                     ),
                 ),
@@ -66,7 +66,7 @@ class Migration(migrations.Migration):
                     "groups",
                     models.ManyToManyField(
                         blank=True,
-                        help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",
+                        help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",  # noqa
                         related_name="user_set",
                         related_query_name="user",
                         to="auth.Group",
@@ -85,8 +85,14 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name": "user", "verbose_name_plural": "users", "abstract": False,},
-            managers=[("objects", django.contrib.auth.models.UserManager()),],
+            options={
+                "verbose_name": "user",
+                "verbose_name_plural": "users",
+                "abstract": False,
+            },
+            managers=[
+                ("objects", django.contrib.auth.models.UserManager()),
+            ],
         ),
         migrations.CreateModel(
             name="Configuration",
@@ -146,6 +152,12 @@ class Migration(migrations.Migration):
             name="security_service",
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="config_service.SecurityService"),
         ),
-        migrations.AlterUniqueTogether(name="configuration", unique_together={("merchant_id", "handler_type")},),
-        migrations.AlterUniqueTogether(name="securityservice", unique_together={("request_type", "configuration")},),
+        migrations.AlterUniqueTogether(
+            name="configuration",
+            unique_together={("merchant_id", "handler_type")},
+        ),
+        migrations.AlterUniqueTogether(
+            name="securityservice",
+            unique_together={("request_type", "configuration")},
+        ),
     ]
