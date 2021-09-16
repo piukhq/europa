@@ -12,7 +12,7 @@ variables:
 
 test:complexity: &test
   stage: test
-  image: ghcr.io/binkhq/python:3.8
+  image: ghcr.io/binkhq/python:3.9
   before_script:
     - pipenv install --dev --system --deploy --ignore-pipfile
   script:
