@@ -15,6 +15,8 @@ import sentry_sdk
 from environment import env_var, read_env
 from sentry_sdk.integrations.django import DjangoIntegration
 
+import dj_database_url
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -101,16 +103,25 @@ STATIC_URL = env_var("STATIC_URL", "/static/")
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": env_var("DB_ENGINE", "django.db.backends.postgresql"),
-        "NAME": env_var("DB_NAME", "europa"),
-        "USER": env_var("DB_USER", "europa"),
-        "PASSWORD": env_var("DB_PASSWORD"),
-        "HOST": env_var("DB_HOST", "localhost"),
-        "PORT": env_var("DB_PORT", "5432"),
+if env_var("EUROPA_DATABASE_URI"):
+    DATABASES = {
+        "default": dj_database_url.config(
+            env="EUROPA_DATABASE_URI",
+            conn_max_age=600,
+            engine="django.db.backends.postgresql",
+        )
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": env_var("DB_ENGINE", "django.db.backends.postgresql"),
+            "NAME": env_var("DB_NAME", "europa"),
+            "USER": env_var("DB_USER", "europa"),
+            "PASSWORD": env_var("DB_PASSWORD"),
+            "HOST": env_var("DB_HOST", "localhost"),
+            "PORT": env_var("DB_PORT", "5432"),
+        }
+    }
 
 
 # Password validation
