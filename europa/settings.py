@@ -149,6 +149,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+# Teams channel to send config updates to
+TEAMS_WEBHOOK = env_var("TEAMS_WEBHOOK", None)
 
 # Azure key Vault
 KEYVAULT_URI = env_var("KEYVAULT_URI", None)

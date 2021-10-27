@@ -6,9 +6,39 @@ from sentry_sdk import capture_exception
 
 from config_service.vault_logic import delete_secret
 from config_service.null_storage import NullStorage
-from config_service.credential_types import BINK_PRIVATE_KEY, BINK_PUBLIC_KEY, MERCHANT_PUBLIC_KEY, COMPOUND_KEY
+from config_service.credential_types import (
+    BINK_PRIVATE_KEY,
+    BINK_PUBLIC_KEY,
+    MERCHANT_PUBLIC_KEY,
+    COMPOUND_KEY,
+)
+from config_service.reporting import teams_notify
 
 exposed_request = None
+
+
+def get_changed_fields(instance, model):
+    prev = model.objects.filter(pk=instance.pk).first()
+    initial_json = prev.__dict__.copy()
+    final_json = instance.__dict__.copy()
+    final_json.pop("_state")
+    initial_json.pop("_state")
+    config_changes = []
+    for key in final_json:
+        if final_json[key] != initial_json[key]:
+            config_changes.append(f'{key} changed from "{initial_json[key]}" to "{final_json[key]}"')
+    return "\n".join(config_changes)
+
+
+def notify_changed_fields(instance, model):
+    if instance.pk:
+        changed_fields = get_changed_fields(instance, model)
+        if changed_fields:
+            message = (
+                f"Instance {instance.pk} of {model.__name__} was edited. "
+                f"Following fields have been changed:\n{changed_fields}."
+            )
+            teams_notify(message, "DB Change", "Europa Config Update")
 
 
 class CustomUser(AbstractUser):
@@ -66,6 +96,10 @@ class Configuration(models.Model):
     class Meta:
         unique_together = ("merchant_id", "handler_type")
 
+    def save(self, *args, **kwargs):
+        notify_changed_fields(self, Configuration)
+        super(Configuration, self).save(*args, **kwargs)
+
 
 class SecurityCredential(models.Model):
     SECURITY_CRED_TYPE_CHOICES = (
@@ -104,13 +138,17 @@ class SecurityCredential(models.Model):
 
         if self.storage_key == "Service unavailable":
             messages.set_level(exposed_request, messages.ERROR)
-            messages.error(exposed_request, "Can not connect to the vault! The file has not been saved.")
+            messages.error(
+                exposed_request,
+                "Can not connect to the vault! The file has not been saved.",
+            )
 
         elif not self.storage_key:
             messages.set_level(exposed_request, messages.ERROR)
             messages.error(exposed_request, error_message)
             self.storage_key = error_message
 
+        notify_changed_fields(self, SecurityCredential)
         super().save(*args, **kwargs)
 
     @staticmethod
@@ -134,7 +172,10 @@ class SecurityService(models.Model):
     INBOUND_REQUEST = "INBOUND"
     OUTBOUND_REQUEST = "OUTBOUND"
 
-    REQUEST_TYPE_CHOICES = ((INBOUND_REQUEST, "Inbound"), (OUTBOUND_REQUEST, "Outbound"))
+    REQUEST_TYPE_CHOICES = (
+        (INBOUND_REQUEST, "Inbound"),
+        (OUTBOUND_REQUEST, "Outbound"),
+    )
 
     request_type = models.CharField(max_length=16, choices=REQUEST_TYPE_CHOICES)
     type = models.IntegerField(choices=SECURITY_TYPE_CHOICES)
@@ -145,3 +186,7 @@ class SecurityService(models.Model):
 
     def __str__(self):
         return "{} {}".format(self.type, self.request_type)
+
+    def save(self, *args, **kwargs):
+        notify_changed_fields(self, SecurityService)
+        super(SecurityService, self).save(*args, **kwargs)
