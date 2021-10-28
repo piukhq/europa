@@ -156,22 +156,6 @@ class TestConfigService(TestCase):
         config_service.save()
         teams_mock.assert_called()
 
-        SecurityService(id=999, request_type=0, type=0, configuration=config_service).save()
-        service = SecurityService.objects.filter(id=999).first()
-        service.type = 1
-        service.save()
-        teams_mock.assert_called()
-
-        SecurityCredential(
-            id=999,
-            type=0,
-            security_service_id=999,
-        ).save()
-        credential = SecurityCredential.objects.filter(id=999).first()
-        credential.type = 1
-        credential.save()
-        teams_mock.assert_called()
-
     @mock.patch("config_service.models.get_changed_fields")
     @mock.patch("config_service.models.teams_notify")
     def test_config_change_post_to_teams_not_called_if_brand_new_instance(self, teams_mock, fields_mock):

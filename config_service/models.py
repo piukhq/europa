@@ -30,17 +30,6 @@ def get_changed_fields(instance, model):
     return "\n".join(config_changes)
 
 
-def notify_changed_fields(instance, model):
-    if instance.pk:
-        changed_fields = get_changed_fields(instance, model)
-        if changed_fields:
-            message = (
-                f"Instance {instance.pk} of {model.__name__} was edited. "
-                f"Following fields have been changed:\n{changed_fields}."
-            )
-            teams_notify(message, "DB Change", "Europa Config Update")
-
-
 class CustomUser(AbstractUser):
     first_login = models.BooleanField(default=True)
 
@@ -97,7 +86,14 @@ class Configuration(models.Model):
         unique_together = ("merchant_id", "handler_type")
 
     def save(self, *args, **kwargs):
-        notify_changed_fields(self, Configuration)
+        if self.pk:
+            changed_fields = get_changed_fields(self, Configuration)
+            if changed_fields:
+                message = (
+                    f"Configuration for {self.merchant_id} was edited. "
+                    f"Following fields have been updated:\n{changed_fields}."
+                )
+                teams_notify(message, "DB Change", "Europa Config Update")
         super(Configuration, self).save(*args, **kwargs)
 
 
@@ -148,7 +144,6 @@ class SecurityCredential(models.Model):
             messages.error(exposed_request, error_message)
             self.storage_key = error_message
 
-        notify_changed_fields(self, SecurityCredential)
         super().save(*args, **kwargs)
 
     @staticmethod
@@ -186,7 +181,3 @@ class SecurityService(models.Model):
 
     def __str__(self):
         return "{} {}".format(self.type, self.request_type)
-
-    def save(self, *args, **kwargs):
-        notify_changed_fields(self, SecurityService)
-        super(SecurityService, self).save(*args, **kwargs)
