@@ -5,7 +5,8 @@ from django.db import models
 from django.forms import Textarea
 from django.utils.html import format_html
 from nested_admin.nested import NestedModelAdmin, NestedTabularInline
-from config_service.models import Configuration, SecurityCredential, CustomUser, SecurityService
+
+from config_service.models import Configuration, CustomUser, SecurityCredential, SecurityService
 
 admin.site.register(CustomUser, UserAdmin)
 

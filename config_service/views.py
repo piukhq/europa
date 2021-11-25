@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.db import connections, DEFAULT_DB_ALIAS
+from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.utils import OperationalError
 from django.http import JsonResponse
 from rest_framework.response import Response
@@ -10,7 +10,7 @@ from voluptuous import MultipleInvalid
 from config_service.models import Configuration
 from config_service.schemas import StorageKeySchema
 from config_service.serializers import ConfigurationSerializer
-from config_service.vault_logic import create_hash, store_key_in_session, format_key, upload_to_vault, get_secret
+from config_service.vault_logic import create_hash, format_key, get_secret, store_key_in_session, upload_to_vault
 
 
 class ConfigurationDetail(APIView):

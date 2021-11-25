@@ -1,12 +1,12 @@
 import hashlib
+
 import mock
+from django.test import Client, TestCase
 from django.test.client import RequestFactory
 
 from config_service import vault_logic
-from django.test import TestCase, Client
-
-from config_service.models import Configuration
 from config_service.credential_types import COMPOUND_KEY
+from config_service.models import Configuration
 
 
 class TestVaultFunctions(TestCase):

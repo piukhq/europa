@@ -11,11 +11,12 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
-import sentry_sdk
-from environment import env_var, read_env
-from sentry_sdk.integrations.django import DjangoIntegration
 
 import dj_database_url
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
+from environment import env_var, read_env
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

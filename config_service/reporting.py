@@ -1,5 +1,5 @@
-from django.conf import settings
 import requests
+from django.conf import settings
 
 
 def teams_notify(message, summary, activity_title):

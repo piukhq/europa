@@ -1,6 +1,8 @@
 from unittest import mock
+
 from django.conf import settings
 from django.test import TestCase
+
 from config_service.reporting import teams_notify
 
 settings.TEAMS_WEBHOOK = "http://localhost"

@@ -1,8 +1,8 @@
 import hashlib
 
+from azure.core.exceptions import AzureError, ResourceNotFoundError, ServiceRequestError
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
-from azure.core.exceptions import ServiceRequestError, ResourceNotFoundError, AzureError
 from sentry_sdk import capture_exception
 
 import europa.settings as settings

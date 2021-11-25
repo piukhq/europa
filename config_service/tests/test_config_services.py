@@ -1,15 +1,11 @@
 import hashlib
 import json
+
 import mock
 from django.test import TestCase
 from django.urls import reverse
 
-from config_service.models import (
-    Configuration,
-    SecurityCredential,
-    SecurityService,
-    get_changed_fields,
-)
+from config_service.models import Configuration, SecurityCredential, SecurityService, get_changed_fields
 
 
 class TestConfigService(TestCase):

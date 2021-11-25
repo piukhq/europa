@@ -23,11 +23,12 @@ pytest = "*"
 pytest-django = "*"
 pytest-cov = "*"
 gunicorn = "*"
-black = "==21.8b0"
+black = "==21.10b0"
 flake8 = "*"
 ptpython = "*"
 mypy = "*"
 xenon = "*"
+isort = "*"
 
 [requires]
 python_version = "3.9"
