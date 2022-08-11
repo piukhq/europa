@@ -104,12 +104,15 @@ STATIC_URL = env_var("STATIC_URL", "/static/")
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
+PG_OPTIONS = {"application_name": "europa"}
+
 if env_var("EUROPA_DATABASE_URI"):
     DATABASES = {
         "default": dj_database_url.config(
             env="EUROPA_DATABASE_URI",
             conn_max_age=600,
             engine="django.db.backends.postgresql",
+            options=PG_OPTIONS,
         )
     }
 else:
@@ -121,6 +124,7 @@ else:
             "PASSWORD": env_var("DB_PASSWORD"),
             "HOST": env_var("DB_HOST", "localhost"),
             "PORT": env_var("DB_PORT", "5432"),
+            "OPTIONS": PG_OPTIONS,
         }
     }
 
