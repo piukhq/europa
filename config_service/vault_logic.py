@@ -1,6 +1,7 @@
 from datetime import datetime
 
-from azure.core.exceptions import AzureError, ResourceNotFoundError, ServiceRequestError
+from azure.core.exceptions import (AzureError, ResourceNotFoundError,
+                                   ServiceRequestError)
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
 from sentry_sdk import capture_exception
@@ -25,7 +26,6 @@ def format_key(key_to_store, credential_type):
 
 def upload_to_vault(key_to_store, storage_key):
     client = connect_to_vault()
-
     try:  # Save to vault. storage_key is the secret name
         years = 50
         date_now = datetime.utcnow()
@@ -33,7 +33,7 @@ def upload_to_vault(key_to_store, storage_key):
             expiry_date = date_now.replace(year=date_now.year + years)
         except ValueError:
             expiry_date = date_now.replace(year=date_now.year + years, day=28)
-        client.set_secret(storage_key, key_to_store, expiry_date=expiry_date)
+        client.set_secret(storage_key, key_to_store, expires_on=expiry_date)
         return True
 
     except (ServiceRequestError, AzureError) as e:
