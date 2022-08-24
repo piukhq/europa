@@ -34,17 +34,12 @@ class TestVaultFunctions(TestCase):
     @mock.patch("config_service.views.store_key_in_session")
     @mock.patch("config_service.views.upload_to_vault")
     @mock.patch("config_service.views.format_key")
-    @mock.patch("config_service.views.create_hash")
-    def test_prepare_data_fits_schema(
-        self, mock_create_hash, mock_format_key, mock_upload_to_vault, mock_store_key_in_session
-    ):
-        mock_create_hash.return_value = "abc"
+    def test_prepare_data_fits_schema(self, mock_format_key, mock_upload_to_vault, mock_store_key_in_session):
         mock_format_key.return_value = {"test": "test"}
         mock_upload_to_vault.return_value = True
 
         response = self.client.post("/config_service/form_data/", self.data)
 
-        self.assertTrue(mock_create_hash.called)
         self.assertTrue(mock_format_key.called)
         self.assertTrue(mock_upload_to_vault.called)
         self.assertTrue(mock_store_key_in_session.called)
@@ -59,15 +54,6 @@ class TestVaultFunctions(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(error_message, '{"error_message": "required key not provided"}')
 
-    def test_correct_hash_is_created(self):
-        response = vault_logic.create_hash(
-            credential_type=self.data["credential_type"],
-            service_type=self.data["service_type"],
-            handler_type=self.data["handler_type"],
-            merchant_id=self.data["merchant_id"],
-        )
-        self.assertEqual(self.storage_key, response)
-
     def test_store_in_session_returns_unavailable(self):
         req = RequestFactory()
         req.session = self.client.session
@@ -75,14 +61,12 @@ class TestVaultFunctions(TestCase):
         self.assertEqual(req.session["storage_key"], "Service unavailable")
 
     @mock.patch("config_service.views.upload_to_vault")
-    @mock.patch("config_service.views.create_hash")
-    def test_store_key_in_session_when_vault_status_is_201(self, mock_create_hash, mock_upload_to_vault):
-        mock_create_hash.return_value = self.storage_key
+    def test_store_key_in_session_when_vault_status_is_201(self, mock_upload_to_vault):
         mock_upload_to_vault.return_value = True
         self.client.post("/config_service/form_data/", self.data)
         session = self.client.session
 
-        self.assertEqual(session["storage_key"], self.storage_key)
+        self.assertEqual(session["storage_key"], "test-test-service-test-credential-1")
 
     def test_get_file_type_is_not_type_dict(self):
         response = vault_logic.format_key(self.data["file"], "oauth")
