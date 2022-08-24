@@ -2,6 +2,7 @@ from azure.core.exceptions import AzureError, ResourceNotFoundError, ServiceRequ
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
 from sentry_sdk import capture_exception
+import datetime
 
 import europa.settings as settings
 from config_service.credential_types import COMPOUND_KEY
@@ -25,7 +26,9 @@ def upload_to_vault(key_to_store, storage_key):
     client = connect_to_vault()
 
     try:  # Save to vault. storage_key is the secret name
-        client.set_secret(storage_key, key_to_store)
+        date_now = datetime.utcnow()
+        expiry_date = date_now.replace(date_now.year + 50)
+        client.set_secret(storage_key, key_to_store, expiry_date=expiry_date)
         return True
 
     except (ServiceRequestError, AzureError) as e:
