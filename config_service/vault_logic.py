@@ -26,8 +26,12 @@ def upload_to_vault(key_to_store, storage_key):
     client = connect_to_vault()
 
     try:  # Save to vault. storage_key is the secret name
+        years = 50
         date_now = datetime.utcnow()
-        expiry_date = date_now.replace(date_now.year + 50)
+        try:
+            expiry_date = date_now.replace(year=date_now.year + years)
+        except ValueError:
+            expiry_date = date_now.replace(year=date_now.year + years, day=28)
         client.set_secret(storage_key, key_to_store, expiry_date=expiry_date)
         return True
 
