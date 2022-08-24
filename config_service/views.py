@@ -12,8 +12,7 @@ from voluptuous import MultipleInvalid
 from config_service.models import Configuration
 from config_service.schemas import StorageKeySchema
 from config_service.serializers import ConfigurationSerializer
-from config_service.vault_logic import (format_key, get_secret,
-                                        store_key_in_session, upload_to_vault)
+from config_service.vault_logic import format_key, get_secret, store_key_in_session, upload_to_vault
 
 
 class ConfigurationDetail(APIView):

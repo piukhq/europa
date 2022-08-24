@@ -1,5 +1,4 @@
-from azure.core.exceptions import (AzureError, ResourceNotFoundError,
-                                   ServiceRequestError)
+from azure.core.exceptions import AzureError, ResourceNotFoundError, ServiceRequestError
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
 from sentry_sdk import capture_exception
