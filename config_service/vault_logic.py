@@ -1,8 +1,10 @@
-from azure.core.exceptions import AzureError, ResourceNotFoundError, ServiceRequestError
+from datetime import datetime
+
+from azure.core.exceptions import (AzureError, ResourceNotFoundError,
+                                   ServiceRequestError)
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
 from sentry_sdk import capture_exception
-import datetime
 
 import europa.settings as settings
 from config_service.credential_types import COMPOUND_KEY
