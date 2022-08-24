@@ -1,19 +1,11 @@
-import hashlib
-
-from azure.core.exceptions import AzureError, ResourceNotFoundError, ServiceRequestError
+from azure.core.exceptions import (AzureError, ResourceNotFoundError,
+                                   ServiceRequestError)
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
 from sentry_sdk import capture_exception
 
 import europa.settings as settings
 from config_service.credential_types import COMPOUND_KEY
-
-
-def create_hash(credential_type, service_type, handler_type, merchant_id):
-    hashed_storage_key = hashlib.sha256(
-        "{}.{}.{}.{}".format(credential_type, service_type, handler_type, merchant_id).encode()
-    )
-    return hashed_storage_key.hexdigest()
 
 
 def store_key_in_session(request, vault_response, storage_key):

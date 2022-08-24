@@ -1,3 +1,5 @@
+import re
+
 from django.conf import settings
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.utils import OperationalError
@@ -10,7 +12,8 @@ from voluptuous import MultipleInvalid
 from config_service.models import Configuration
 from config_service.schemas import StorageKeySchema
 from config_service.serializers import ConfigurationSerializer
-from config_service.vault_logic import create_hash, format_key, get_secret, store_key_in_session, upload_to_vault
+from config_service.vault_logic import (format_key, get_secret,
+                                        store_key_in_session, upload_to_vault)
 
 
 class ConfigurationDetail(APIView):
@@ -63,9 +66,11 @@ def prepare_data(request):
         capture_exception(e.error_message)
         return JsonResponse({"error_message": e.error_message})
 
-    storage_key = create_hash(data["credential_type"], data["service_type"], data["handler_type"], data["merchant_id"])
+    storage_key = "{}.{}.{}.{}".format(
+        data["merchant_id"], data["service_type"], data["credential_type"], data["handler_type"]
+    )
+    storage_key = re.sub("[^0-9a-zA-Z]+", "-", storage_key).lower()
     key_to_store = data["file"]
-
     key_to_save = format_key(key_to_store, data["credential_type"])
     vault = upload_to_vault(key_to_save, storage_key)
     store_key_in_session(request, vault, storage_key)
