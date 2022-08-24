@@ -66,7 +66,7 @@ class TestVaultFunctions(TestCase):
         self.client.post("/config_service/form_data/", self.data)
         session = self.client.session
 
-        self.assertEqual(session["storage_key"], "test-test-service-test-credential-1")
+        self.assertEqual(session["storage_key"], "test-test-service-test-credential-join")
 
     def test_get_file_type_is_not_type_dict(self):
         response = vault_logic.format_key(self.data["file"], "oauth")
