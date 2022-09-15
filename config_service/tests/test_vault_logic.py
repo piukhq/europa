@@ -34,9 +34,7 @@ class TestVaultFunctions(TestCase):
     @mock.patch("config_service.views.store_key_in_session")
     @mock.patch("config_service.views.upload_to_vault")
     @mock.patch("config_service.views.format_key")
-    def test_prepare_data_fits_schema(
-        self, mock_format_key, mock_upload_to_vault, mock_store_key_in_session
-    ):
+    def test_prepare_data_fits_schema(self, mock_format_key, mock_upload_to_vault, mock_store_key_in_session):
         mock_format_key.return_value = {"test": "test"}
         mock_upload_to_vault.return_value = True
 
@@ -55,9 +53,7 @@ class TestVaultFunctions(TestCase):
 
         error_message = response._container[0].decode("utf-8")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            error_message, '{"error_message": "required key not provided"}'
-        )
+        self.assertEqual(error_message, '{"error_message": "required key not provided"}')
 
     def test_store_in_session_returns_unavailable(self):
         req = RequestFactory()
@@ -71,9 +67,7 @@ class TestVaultFunctions(TestCase):
         self.client.post("/config_service/form_data/", self.data)
         session = self.client.session
 
-        self.assertEqual(
-            session["storage_key"], "test-test-service-test-credential-join"
-        )
+        self.assertEqual(session["storage_key"], "test-test-service-test-credential-join")
 
     def test_get_file_type_is_not_type_dict(self):
         response = vault_logic.format_key(self.data["file"], "oauth")

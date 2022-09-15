@@ -5,8 +5,7 @@ import mock
 from django.test import TestCase
 from django.urls import reverse
 
-from config_service.models import (Configuration, SecurityCredential,
-                                   SecurityService, get_changed_fields)
+from config_service.models import Configuration, SecurityCredential, SecurityService, get_changed_fields
 
 
 class TestConfigService(TestCase):
@@ -155,9 +154,7 @@ class TestConfigService(TestCase):
 
     @mock.patch("config_service.models.get_changed_fields")
     @mock.patch("config_service.models.teams_notify")
-    def test_config_change_post_to_teams_not_called_if_brand_new_instance(
-        self, teams_mock, fields_mock
-    ):
+    def test_config_change_post_to_teams_not_called_if_brand_new_instance(self, teams_mock, fields_mock):
         fields_mock.return_value = "test, test, test"
         Configuration(
             merchant_id="test",
@@ -184,6 +181,5 @@ class TestConfigService(TestCase):
         instance = Configuration.objects.filter(merchant_id="test").first()
         instance.merchant_url = "http://nottest"
         assert (
-            get_changed_fields(instance, Configuration)
-            == 'merchant_url changed from "http://test" to "http://nottest"'
+            get_changed_fields(instance, Configuration) == 'merchant_url changed from "http://test" to "http://nottest"'
         )
