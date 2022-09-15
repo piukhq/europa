@@ -14,7 +14,12 @@ class Migration(migrations.Migration):
             model_name="securityservice",
             name="type",
             field=models.IntegerField(
-                choices=[(0, "RSA"), (1, "Open Auth (No Authentication)"), (2, "OAuth"), (3, "PGP")]
+                choices=[
+                    (0, "RSA"),
+                    (1, "Open Auth (No Authentication)"),
+                    (2, "OAuth"),
+                    (3, "PGP"),
+                ]
             ),
         ),
     ]

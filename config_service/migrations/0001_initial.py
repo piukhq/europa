@@ -19,9 +19,20 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="CustomUser",
             fields=[
-                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("password", models.CharField(max_length=128, verbose_name="password")),
-                ("last_login", models.DateTimeField(blank=True, null=True, verbose_name="last login")),
+                (
+                    "last_login",
+                    models.DateTimeField(blank=True, null=True, verbose_name="last login"),
+                ),
                 (
                     "is_superuser",
                     models.BooleanField(
@@ -41,9 +52,18 @@ class Migration(migrations.Migration):
                         verbose_name="username",
                     ),
                 ),
-                ("first_name", models.CharField(blank=True, max_length=30, verbose_name="first name")),
-                ("last_name", models.CharField(blank=True, max_length=150, verbose_name="last name")),
-                ("email", models.EmailField(blank=True, max_length=254, verbose_name="email address")),
+                (
+                    "first_name",
+                    models.CharField(blank=True, max_length=30, verbose_name="first name"),
+                ),
+                (
+                    "last_name",
+                    models.CharField(blank=True, max_length=150, verbose_name="last name"),
+                ),
+                (
+                    "email",
+                    models.EmailField(blank=True, max_length=254, verbose_name="email address"),
+                ),
                 (
                     "is_staff",
                     models.BooleanField(
@@ -60,7 +80,10 @@ class Migration(migrations.Migration):
                         verbose_name="active",
                     ),
                 ),
-                ("date_joined", models.DateTimeField(default=django.utils.timezone.now, verbose_name="date joined")),
+                (
+                    "date_joined",
+                    models.DateTimeField(default=django.utils.timezone.now, verbose_name="date joined"),
+                ),
                 ("first_login", models.BooleanField(default=True)),
                 (
                     "groups",
@@ -97,17 +120,41 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Configuration",
             fields=[
-                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("merchant_id", models.CharField(max_length=64)),
                 ("merchant_url", models.CharField(max_length=256)),
-                ("handler_type", models.IntegerField(choices=[(0, "Update"), (1, "Join"), (2, "Validate")])),
-                ("integration_service", models.IntegerField(choices=[(0, "Sync"), (1, "Async")])),
-                ("callback_url", models.CharField(blank=True, max_length=256, null=True)),
+                (
+                    "handler_type",
+                    models.IntegerField(choices=[(0, "Update"), (1, "Join"), (2, "Validate")]),
+                ),
+                (
+                    "integration_service",
+                    models.IntegerField(choices=[(0, "Sync"), (1, "Async")]),
+                ),
+                (
+                    "callback_url",
+                    models.CharField(blank=True, max_length=256, null=True),
+                ),
                 ("retry_limit", models.IntegerField(default=0)),
                 (
                     "log_level",
                     models.IntegerField(
-                        choices=[(0, "Debug"), (1, "Info"), (2, "Warning"), (3, "Error"), (4, "Critical")], default=0
+                        choices=[
+                            (0, "Debug"),
+                            (1, "Info"),
+                            (2, "Warning"),
+                            (3, "Error"),
+                            (4, "Critical"),
+                        ],
+                        default=0,
                     ),
                 ),
                 ("country", models.CharField(default="GB", max_length=128)),
@@ -116,7 +163,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="SecurityCredential",
             fields=[
-                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "type",
                     models.CharField(
@@ -135,22 +190,48 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="SecurityService",
             fields=[
-                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 (
                     "request_type",
-                    models.CharField(choices=[("INBOUND", "Inbound"), ("OUTBOUND", "Outbound")], max_length=16),
+                    models.CharField(
+                        choices=[("INBOUND", "Inbound"), ("OUTBOUND", "Outbound")],
+                        max_length=16,
+                    ),
                 ),
-                ("type", models.IntegerField(choices=[(0, "RSA"), (1, "Open Auth (No Authentication)"), (2, "OAuth")])),
+                (
+                    "type",
+                    models.IntegerField(
+                        choices=[
+                            (0, "RSA"),
+                            (1, "Open Auth (No Authentication)"),
+                            (2, "OAuth"),
+                        ]
+                    ),
+                ),
                 (
                     "configuration",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="config_service.Configuration"),
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="config_service.Configuration",
+                    ),
                 ),
             ],
         ),
         migrations.AddField(
             model_name="securitycredential",
             name="security_service",
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="config_service.SecurityService"),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to="config_service.SecurityService",
+            ),
         ),
         migrations.AlterUniqueTogether(
             name="configuration",

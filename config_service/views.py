@@ -51,7 +51,10 @@ class ConfigurationDetail(APIView):
             ],
         }
 
-        config["security_credentials"] = {"inbound": inbound_credentials, "outbound": outbound_credentials}
+        config["security_credentials"] = {
+            "inbound": inbound_credentials,
+            "outbound": outbound_credentials,
+        }
 
         return JsonResponse(config, status=200)
 

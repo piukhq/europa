@@ -14,7 +14,12 @@ class Migration(migrations.Migration):
             model_name="configuration",
             name="handler_type",
             field=models.IntegerField(
-                choices=[(0, "Update"), (1, "Join"), (2, "Validate"), (3, "Transaction Matching")]
+                choices=[
+                    (0, "Update"),
+                    (1, "Join"),
+                    (2, "Validate"),
+                    (3, "Transaction Matching"),
+                ]
             ),
         ),
     ]

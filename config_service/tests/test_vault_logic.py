@@ -47,7 +47,8 @@ class TestVaultFunctions(TestCase):
 
     def test_prepare_data_does_not_fit_schema(self):
         response = self.client.get(
-            "/config_service/form_data/", {"merchant_id": "test", "service_type": "test_service"}
+            "/config_service/form_data/",
+            {"merchant_id": "test", "service_type": "test_service"},
         )
 
         error_message = response._container[0].decode("utf-8")
