@@ -12,7 +12,8 @@ from voluptuous import MultipleInvalid
 from config_service.models import Configuration
 from config_service.schemas import StorageKeySchema
 from config_service.serializers import ConfigurationSerializer
-from config_service.vault_logic import format_key, get_secret, store_key_in_session, upload_to_vault
+from config_service.vault_logic import (format_key, get_secret,
+                                        store_key_in_session, upload_to_vault)
 
 
 class ConfigurationDetail(APIView):
@@ -24,16 +25,26 @@ class ConfigurationDetail(APIView):
         handler_type = request.GET.get("handler_type")
 
         try:
-            config_queryset = Configuration.objects.filter(merchant_id=merchant_id, handler_type=handler_type)
+            config_queryset = Configuration.objects.filter(
+                merchant_id=merchant_id, handler_type=handler_type
+            )
             config = config_queryset.values()[0]
         except IndexError:
             return JsonResponse(
-                {"message": "configuration for {} using the given handler does not exist.".format(merchant_id)},
+                {
+                    "message": "configuration for {} using the given handler does not exist.".format(
+                        merchant_id
+                    )
+                },
                 status=400,
             )
 
-        inbound_security_service = config_queryset[0].securityservice_set.get(request_type="INBOUND")
-        outbound_security_service = config_queryset[0].securityservice_set.get(request_type="OUTBOUND")
+        inbound_security_service = config_queryset[0].securityservice_set.get(
+            request_type="INBOUND"
+        )
+        outbound_security_service = config_queryset[0].securityservice_set.get(
+            request_type="OUTBOUND"
+        )
 
         inbound_credentials = {
             "service": inbound_security_service.type,
@@ -51,7 +62,10 @@ class ConfigurationDetail(APIView):
             ],
         }
 
-        config["security_credentials"] = {"inbound": inbound_credentials, "outbound": outbound_credentials}
+        config["security_credentials"] = {
+            "inbound": inbound_credentials,
+            "outbound": outbound_credentials,
+        }
 
         return JsonResponse(config, status=200)
 
@@ -66,7 +80,9 @@ def prepare_data(request):
         return JsonResponse({"error_message": e.error_message})
 
     handler_type = Configuration.HANDLER_TYPE_CHOICES[int(data["handler_type"])][1]
-    storage_key = "{}.{}.{}.{}".format(data["merchant_id"], data["service_type"], data["credential_type"], handler_type)
+    storage_key = "{}.{}.{}.{}".format(
+        data["merchant_id"], data["service_type"], data["credential_type"], handler_type
+    )
     storage_key = re.sub("[^0-9a-zA-Z]+", "-", storage_key).lower()
     key_to_store = data["file"]
     key_to_save = format_key(key_to_store, data["credential_type"])
@@ -92,13 +108,17 @@ class ReadyzCheck(APIView):
         # Check it can get secrets
         resp = get_secret("fakicorp-readyz")
         if resp is None:
-            return JsonResponse({"error": f"Cannot get secrets from {settings.VAULT_URL}"}, status=500)
+            return JsonResponse(
+                {"error": f"Cannot get secrets from {settings.VAULT_URL}"}, status=500
+            )
 
         # Check DB
         db_conn = connections[DEFAULT_DB_ALIAS]
         try:
             db_conn.cursor()
         except OperationalError as err:
-            return JsonResponse({"error": f"Cannot connect to database: {err}"}, status=500)
+            return JsonResponse(
+                {"error": f"Cannot connect to database: {err}"}, status=500
+            )
 
         return Response(status=204)

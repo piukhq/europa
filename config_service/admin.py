@@ -6,7 +6,8 @@ from django.forms import Textarea
 from django.utils.html import format_html
 from nested_admin.nested import NestedModelAdmin, NestedTabularInline
 
-from config_service.models import Configuration, CustomUser, SecurityCredential, SecurityService
+from config_service.models import (Configuration, CustomUser,
+                                   SecurityCredential, SecurityService)
 
 admin.site.register(CustomUser, UserAdmin)
 
@@ -28,7 +29,9 @@ class SecurityCredentialInline(NestedTabularInline):
     readonly_fields = ("storage_key", "upload_button")
 
     def upload_button(self, obj):
-        return format_html("<input type='button' class='button-primary upload_to_vault' value='Upload to Vault' />")
+        return format_html(
+            "<input type='button' class='button-primary upload_to_vault' value='Upload to Vault' />"
+        )
 
     upload_button.allow_tags = True
 

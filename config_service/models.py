@@ -4,7 +4,8 @@ from django.db import models
 from rest_framework.response import Response
 from sentry_sdk import capture_exception
 
-from config_service.credential_types import BINK_PRIVATE_KEY, BINK_PUBLIC_KEY, COMPOUND_KEY, MERCHANT_PUBLIC_KEY
+from config_service.credential_types import (BINK_PRIVATE_KEY, BINK_PUBLIC_KEY,
+                                             COMPOUND_KEY, MERCHANT_PUBLIC_KEY)
 from config_service.null_storage import NullStorage
 from config_service.reporting import teams_notify
 from config_service.vault_logic import delete_secret
@@ -21,7 +22,9 @@ def get_changed_fields(instance, model):
     config_changes = []
     for key in final_json:
         if final_json[key] != initial_json[key]:
-            config_changes.append(f'{key} changed from "{initial_json[key]}" to "{final_json[key]}"')
+            config_changes.append(
+                f'{key} changed from "{initial_json[key]}" to "{final_json[key]}"'
+            )
     return "\n".join(config_changes)
 
 
