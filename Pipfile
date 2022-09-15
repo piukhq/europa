@@ -16,6 +16,7 @@ azure-identity = "*"
 azure-keyvault-secrets = "*"
 gunicorn = "*"
 dj-database-url = "*"
+tzdata = "*"
 
 [dev-packages]
 mock = "*"
