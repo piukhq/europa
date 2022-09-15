@@ -36,8 +36,8 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 CSRF_TRUSTED_ORIGINS = [
-    "127.0.0.1",
-    ".bink.com",
+    "http://127.0.0.1",
+    "https://*.bink.com",
 ]
 
 
