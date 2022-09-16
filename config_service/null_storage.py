@@ -1,6 +1,8 @@
 from django.core.files.storage import Storage
+from django.utils.deconstruct import deconstructible
 
 
+@deconstructible()
 class NullStorage(Storage):
     """
     Satisfies the Django Storage interface but does not save the file anywhere.
