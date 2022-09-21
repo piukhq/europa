@@ -46,14 +46,6 @@ class Configuration(models.Model):
         (TRANSACTION_HISTORY_HANDLER, "Transaction History"),
     )
 
-    SYNC_INTEGRATION = 0
-    ASYNC_INTEGRATION = 1
-
-    INTEGRATION_CHOICES = (
-        (SYNC_INTEGRATION, "Sync"),
-        (ASYNC_INTEGRATION, "Async"),
-    )
-
     DEBUG_LOG_LEVEL = 0
     INFO_LOG_LEVEL = 1
     WARNING_LOG_LEVEL = 2
@@ -71,7 +63,6 @@ class Configuration(models.Model):
     merchant_id = models.CharField(verbose_name="Merchant Slug", max_length=64)
     merchant_url = models.CharField(max_length=256)
     handler_type = models.IntegerField(choices=HANDLER_TYPE_CHOICES)
-    integration_service = models.IntegerField(choices=INTEGRATION_CHOICES)
     callback_url = models.CharField(max_length=256, blank=True, null=True)
     retry_limit = models.IntegerField(default=0)
     log_level = models.IntegerField(choices=LOG_LEVEL_CHOICES, default=DEBUG_LOG_LEVEL)
