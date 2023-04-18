@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("config_service", "0006_alter_customuser_first_name_and_more"),
     ]

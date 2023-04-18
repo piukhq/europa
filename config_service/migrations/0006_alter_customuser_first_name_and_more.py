@@ -6,7 +6,6 @@ import config_service.null_storage
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("config_service", "0005_auto_20191125_1035"),
     ]
