@@ -17,6 +17,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from two_factor.urls import urlpatterns as tf_urls
 
 from config_service import views
 
@@ -27,4 +28,5 @@ urlpatterns = [
     path("livez", views.HealthCheck.as_view()),
     path("readyz", views.ReadyzCheck.as_view()),
     path("nested_admin/", include("nested_admin.urls")),
+    path("", include(tf_urls)),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

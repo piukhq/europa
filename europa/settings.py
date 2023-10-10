@@ -50,6 +50,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_otp",
+    "django_otp.plugins.otp_static",
+    "django_otp.plugins.otp_totp",
+    "two_factor",
     "config_service",
     "rest_framework",
     "nested_admin",
@@ -70,6 +74,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "config_service.request_exposer.ExposeRequestMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django_otp.middleware.OTPMiddleware",
 ]
 
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
@@ -164,3 +170,5 @@ ENVIRONMENT_ID = env_var("ENVIRONMENT_ID", "dev").lower()
 SENTRY_DSN = env_var("SENTRY_DSN")
 if SENTRY_DSN:
     sentry_sdk.init(dsn=SENTRY_DSN, environment=ENVIRONMENT_ID, integrations=[DjangoIntegration()])
+
+LOGIN_URL = "two_factor:login"

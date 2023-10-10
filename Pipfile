@@ -17,6 +17,7 @@ azure-keyvault-secrets = "*"
 gunicorn = "*"
 dj-database-url = "*"
 tzdata = "*"
+django-two-factor-auth = {extras = ["phonenumbers"], version = "*"}
 
 [dev-packages]
 mock = "*"
