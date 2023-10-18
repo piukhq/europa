@@ -13,3 +13,4 @@ database/*
 app/.DS_Store
 .vscode/
 db.sqlite3
+*.ico
