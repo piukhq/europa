@@ -81,7 +81,11 @@ class Configuration(models.Model):
                     f"Configuration for {self.merchant_id} was edited. "
                     f"Following fields have been updated:\n{changed_fields}."
                 )
-                teams_notify(message, "DB Change", "Europa Config Update")
+                try:
+                    teams_notify(message, "DB Change", "Europa Config Update")
+                except Exception as e:
+                    capture_exception(e)
+
         super(Configuration, self).save(*args, **kwargs)
 
 
