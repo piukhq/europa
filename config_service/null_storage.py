@@ -7,6 +7,7 @@ class NullStorage(Storage):
     """
     Satisfies the Django Storage interface but does not save the file anywhere.
     """
+
     def url(self, name: str | None) -> str:
         return ""
 
